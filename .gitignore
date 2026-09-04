@@ -1,5 +1,6 @@
 # Dependencies
 node_modules/
+**/node_modules/
 client/node_modules/
 server/node_modules/
 
@@ -38,3 +39,4 @@ Desktop.ini
 
 # Scratch scripts
 copy_to_*.ps1
+sih_website/
