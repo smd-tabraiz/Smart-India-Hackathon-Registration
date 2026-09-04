@@ -97,29 +97,42 @@ const sendRegistrationEmail = async (teamData) => {
     </html>
   `;
 
+  const fromAddress = process.env.SMTP_USER || process.env.SENDGRID_FROM_EMAIL || 'noreply@codersclub.edu.in';
   const mailOptions = {
-    from: `"${process.env.SENDGRID_FROM_NAME || 'Coders Club & CIE SIH Portal'}" <${process.env.SENDGRID_FROM_EMAIL || process.env.SMTP_USER || 'noreply@codersclub.edu.in'}>`,
+    from: `"${process.env.SENDGRID_FROM_NAME || 'Coders Club & CIE SIH Portal'}" <${fromAddress}>`,
     to: leaderEmail,
     subject: `[SIH 2026] Registration Confirmation - Team ${teamName} (${teamId})`,
     html: htmlContent,
   };
 
-  // Option 1: Try Nodemailer SMTP if SMTP_USER is configured
-  if (process.env.SMTP_USER && process.env.SMTP_PASS) {
+  // Option 1: Try Nodemailer SMTP if SMTP_USER and SMTP_PASS are configured
+  if (process.env.SMTP_USER && process.env.SMTP_PASS && process.env.SMTP_PASS.trim() !== '') {
     try {
-      const transporter = nodemailer.createTransport({
-        host: process.env.SMTP_HOST || 'smtp.gmail.com',
-        port: parseInt(process.env.SMTP_PORT) || 465,
-        secure: process.env.SMTP_SECURE === 'false' ? false : true,
-        auth: {
-          user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASS,
-        },
-      });
+      const cleanPass = process.env.SMTP_PASS.replace(/\s+/g, '');
+      const isGmail = (process.env.SMTP_HOST || 'smtp.gmail.com').includes('gmail');
+      
+      const transportConfig = isGmail
+        ? {
+            service: 'gmail',
+            auth: {
+              user: process.env.SMTP_USER.trim(),
+              pass: cleanPass,
+            },
+          }
+        : {
+            host: process.env.SMTP_HOST,
+            port: parseInt(process.env.SMTP_PORT) || 587,
+            secure: process.env.SMTP_PORT == 465,
+            auth: {
+              user: process.env.SMTP_USER.trim(),
+              pass: cleanPass,
+            },
+          };
 
+      const transporter = nodemailer.createTransport(transportConfig);
       const info = await transporter.sendMail(mailOptions);
-      console.log(`✅ Confirmation email delivered via SMTP to ${leaderEmail} (Message ID: ${info.messageId})`);
-      return true;
+      console.log(`✅ Confirmation email delivered to real inbox: ${leaderEmail} (Message ID: ${info.messageId})`);
+      return { success: true, method: 'smtp', messageId: info.messageId };
     } catch (err) {
       console.error('❌ SMTP Email Delivery Failed:', err.message);
     }
@@ -130,7 +143,7 @@ const sendRegistrationEmail = async (teamData) => {
     try {
       await sgMail.send(mailOptions);
       console.log(`✅ Confirmation email sent via SendGrid API to ${leaderEmail}`);
-      return true;
+      return { success: true, method: 'sendgrid' };
     } catch (err) {
       console.error('❌ SendGrid Error:', err.response ? err.response.body : err.message);
     }
@@ -157,10 +170,10 @@ const sendRegistrationEmail = async (teamData) => {
     console.log(`📩 Recipient: ${leaderEmail}`);
     console.log(`🔗 Live Email Inbox Preview URL: ${previewUrl}`);
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    return true;
+    return { success: true, method: 'ethereal', previewUrl };
   } catch (err) {
     console.error('❌ Ethereal email fallback error:', err.message);
-    return false;
+    return { success: false, error: err.message };
   }
 };
 

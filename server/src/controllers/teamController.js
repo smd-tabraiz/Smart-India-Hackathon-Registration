@@ -177,10 +177,12 @@ const registerTeam = async (req, res) => {
     }
 
     // 4. Send confirmation email
-    const emailSent = await sendRegistrationEmail(teamObj);
-    if (emailSent && isDbConnected()) {
+    const emailResult = await sendRegistrationEmail(teamObj);
+    if (emailResult.success && isDbConnected()) {
       teamObj.emailSent = true;
       await teamObj.save();
+    } else if (emailResult.success) {
+      teamObj.emailSent = true;
     }
 
     // 5. Generate JWT Token
@@ -197,6 +199,9 @@ const registerTeam = async (req, res) => {
         teamId: userObj.teamId,
       },
       token,
+      emailSent: emailResult.success,
+      emailMethod: emailResult.method,
+      emailPreviewUrl: emailResult.previewUrl || null,
       whatsappGroupLink: process.env.WHATSAPP_GROUP_LINK || 'https://chat.whatsapp.com/SIH2026CodersClubCIE',
     });
   } catch (error) {

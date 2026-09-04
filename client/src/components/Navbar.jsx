@@ -23,22 +23,27 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           
-          {/* Brand Logos Placeholder */}
+          {/* Official Brand Logos */}
           <Link to="/" className="flex items-center space-x-3 group">
-            <div className="flex items-center space-x-2 bg-slate-800/80 p-2 rounded-xl border border-slate-700/60 group-hover:border-blue-500 transition-colors">
-              <div className="bg-blue-600 text-white p-1.5 rounded-lg flex items-center justify-center">
-                <Code2 className="w-5 h-5" />
-              </div>
-              <div className="bg-amber-500 text-white p-1.5 rounded-lg flex items-center justify-center">
-                <Lightbulb className="w-5 h-5" />
-              </div>
+            <div className="flex items-center space-x-1.5 bg-slate-800/90 p-1.5 rounded-xl border border-slate-700/60 group-hover:border-cyan-500 transition-colors">
+              <img
+                src="/cc_logo.jpg"
+                alt="Coders' Club"
+                className="w-8 h-8 rounded-lg object-contain bg-white p-0.5"
+              />
+              <span className="text-slate-500 text-xs font-bold">×</span>
+              <img
+                src="/cie_logo.jpg"
+                alt="Centre for Entrepreneurship (CIE)"
+                className="w-8 h-8 rounded-lg object-contain bg-white p-0.5"
+              />
             </div>
             <div>
               <div className="flex items-center space-x-1.5 font-bold text-lg tracking-tight">
                 <span className="text-white">SIH 2026</span>
                 <span className="text-xs bg-cyan-500/20 text-cyan-400 px-2 py-0.5 rounded-full border border-cyan-500/30">Portal</span>
               </div>
-              <p className="text-xs text-slate-400 font-medium">Coders Club × CIE</p>
+              <p className="text-[11px] text-slate-400 font-medium">Coders Club × CIE</p>
             </div>
           </Link>
 

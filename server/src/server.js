@@ -42,10 +42,14 @@ app.use(
   })
 );
 
+// Trust proxy for ngrok & reverse proxies
+app.set('trust proxy', 1);
+
 // Rate Limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 500, // limit each IP to 500 requests per windowMs for high mobile traffic
+  validate: { xForwardedForHeader: false },
   message: 'Too many requests from this IP, please try again later.',
 });
 app.use('/api', limiter);

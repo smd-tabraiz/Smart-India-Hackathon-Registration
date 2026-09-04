@@ -102,12 +102,20 @@ const Footer = () => {
 
         </div>
 
-        <div className="border-t border-slate-800/80 mt-10 pt-6 flex flex-col md:flex-row items-center justify-between text-xs text-slate-500">
-          <p>© 2026 Smart India Hackathon Portal. Coders Club × Centre for Entrepreneurship (CIE). All rights reserved.</p>
-          <div className="flex space-x-6 mt-3 md:mt-0">
-            <Link to="/terms" className="hover:text-slate-400">Privacy Policy</Link>
-            <Link to="/terms" className="hover:text-slate-400">Guidelines</Link>
-            <Link to="/admin/login" className="hover:text-slate-400">Admin Portal</Link>
+        <div className="border-t border-slate-800/80 mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+          <div className="flex flex-col sm:flex-row items-center gap-2 text-center sm:text-left">
+            <p>© 2026 Smart India Hackathon Portal. Coders Club × Centre for Entrepreneurship (CIE).</p>
+            <span className="hidden sm:inline text-slate-600">•</span>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900 border border-slate-700/80 text-cyan-300 font-medium shadow-sm">
+              <span>🚀 Created by</span>
+              <span className="text-white font-semibold underline decoration-cyan-400 decoration-1 underline-offset-2">Asma Eram</span>
+              <span className="text-slate-400 text-[11px]">(Full Stack Developer)</span>
+            </div>
+          </div>
+          <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-6 text-slate-400">
+            <Link to="/terms" className="hover:text-cyan-400 transition-colors">Privacy Policy</Link>
+            <Link to="/terms" className="hover:text-cyan-400 transition-colors">Guidelines</Link>
+            <Link to="/admin/login" className="hover:text-cyan-400 transition-colors">Admin Portal</Link>
           </div>
         </div>
       </div>

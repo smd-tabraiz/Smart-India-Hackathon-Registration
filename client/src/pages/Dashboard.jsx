@@ -85,25 +85,48 @@ const Dashboard = () => {
     <div className="min-h-screen bg-slate-900 text-white py-10">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Header bar */}
-        <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 mb-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xl">
-          <div>
-            <div className="flex items-center space-x-3">
-              <span className="bg-cyan-500/20 text-cyan-400 text-xs px-3 py-1 rounded-full font-bold border border-cyan-500/30">
-                TEAM ID: {team.teamId}
-              </span>
-              <span className="bg-emerald-500/20 text-emerald-300 text-xs px-3 py-1 rounded-full font-bold border border-emerald-500/30">
-                {team.registrationStatus.toUpperCase()}
-              </span>
+        {/* Header bar with Club Logos */}
+        <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 mb-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-xl">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
+            {/* Both Club Logos */}
+            <div className="flex items-center space-x-3 bg-slate-900/90 p-2.5 rounded-2xl border border-slate-800 shadow-md shrink-0">
+              <div className="text-center">
+                <img
+                  src="/cc_logo.jpg"
+                  alt="Coders' Club"
+                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl object-contain bg-white p-1 border border-slate-700 shadow-sm"
+                />
+                <span className="text-[10px] text-slate-400 block font-bold mt-1">Coders' Club</span>
+              </div>
+              <span className="text-slate-600 font-extrabold text-base">×</span>
+              <div className="text-center">
+                <img
+                  src="/cie_logo.jpg"
+                  alt="Centre for Entrepreneurship (CIE)"
+                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl object-contain bg-white p-1 border border-slate-700 shadow-sm"
+                />
+                <span className="text-[10px] text-slate-400 block font-bold mt-1">CIE</span>
+              </div>
             </div>
-            <h1 className="text-2xl font-extrabold text-white mt-2">{team.teamName}</h1>
-            <p className="text-xs text-slate-400 mt-0.5">Problem Statement ID: <strong className="text-cyan-400">{team.problemStatementId}</strong></p>
+
+            <div>
+              <div className="flex items-center space-x-3">
+                <span className="bg-cyan-500/20 text-cyan-400 text-xs px-3 py-1 rounded-full font-bold border border-cyan-500/30 font-mono">
+                  TEAM ID: {team.teamId}
+                </span>
+                <span className="bg-emerald-500/20 text-emerald-300 text-xs px-3 py-1 rounded-full font-bold border border-emerald-500/30">
+                  {team.registrationStatus.toUpperCase()}
+                </span>
+              </div>
+              <h1 className="text-2xl font-extrabold text-white mt-2">{team.teamName}</h1>
+              <p className="text-xs text-slate-400 mt-0.5">Problem Statement ID: <strong className="text-cyan-400">{team.problemStatementId}</strong></p>
+            </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
             <button
               onClick={() => setEditing(!editing)}
-              className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2.5 rounded-xl text-xs font-bold flex items-center space-x-2 border border-slate-700"
+              className="flex-1 md:flex-none bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center space-x-2 border border-slate-700 transition-colors"
             >
               <Edit3 className="w-4 h-4 text-blue-400" />
               <span>{editing ? 'Cancel Editing' : 'Edit Team Details'}</span>
@@ -111,7 +134,7 @@ const Dashboard = () => {
 
             <button
               onClick={handlePrint}
-              className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2.5 rounded-xl text-xs font-bold flex items-center space-x-2 border border-slate-700"
+              className="flex-1 md:flex-none bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center space-x-2 border border-slate-700 transition-colors"
             >
               <Printer className="w-4 h-4 text-amber-400" />
               <span>Print Details</span>

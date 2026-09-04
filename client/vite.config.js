@@ -9,7 +9,7 @@ export default defineConfig({
     allowedHosts: true, // Allow all hostnames including ngrok domains (*.ngrok-free.app)
     proxy: {
       '/api': {
-        target: 'http://localhost:5005',
+        target: 'http://127.0.0.1:5005',
         changeOrigin: true,
         secure: false,
       },
