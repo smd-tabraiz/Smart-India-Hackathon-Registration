@@ -33,3 +33,5 @@ services:
         value: https://chat.whatsapp.com/EIoDz1GewoZLVXYJEdfR0t?s=sw&p=a&mlu=4&ilr=4
       - key: LIVE_SPREADSHEET_URL
         value: https://docs.google.com/spreadsheets/d/1LHSq7l3zEeAtCKd8ZfqyDA7RJFcyMR541cljhQClUGY/edit?usp=sharing
+      - key: GOOGLE_SHEET_WEBHOOK_URL
+        sync: false

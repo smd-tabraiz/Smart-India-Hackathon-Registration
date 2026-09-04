@@ -4,6 +4,7 @@ const User = require('../models/User');
 const localStore = require('../config/localStore');
 const { generateTeamId } = require('../utils/teamIdGenerator');
 const { sendRegistrationEmail } = require('../utils/sendGrid');
+const { appendTeamToSheet } = require('../utils/googleSheets');
 const { generateToken } = require('./authController');
 
 // Helper to check if DB is connected
@@ -225,7 +226,12 @@ const registerTeam = async (req, res) => {
       teamObj.emailSent = true;
     }
 
-    // 5. Generate JWT Token
+    // 5. Trigger real-time Google Sheet sync
+    appendTeamToSheet(teamObj).catch((err) => {
+      console.warn('[Google Sheets] Async append notice:', err.message);
+    });
+
+    // 6. Generate JWT Token
     const token = generateToken(userObj._id, userObj.role, userObj.email);
 
     res.status(201).json({

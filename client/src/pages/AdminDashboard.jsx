@@ -192,6 +192,14 @@ const AdminDashboard = () => {
               <span>Export CSV</span>
             </button>
 
+            <Link
+              to="/spreadsheet"
+              className="flex-1 md:flex-none bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 border border-blue-500/40 font-bold px-4 py-2.5 rounded-xl text-xs flex items-center justify-center space-x-2 transition-colors"
+            >
+              <FileSpreadsheet className="w-4 h-4" />
+              <span>Live Grid & Sync</span>
+            </Link>
+
             <a
               href="https://docs.google.com/spreadsheets/d/1LHSq7l3zEeAtCKd8ZfqyDA7RJFcyMR541cljhQClUGY/edit?usp=sharing"
               target="_blank"
@@ -199,7 +207,7 @@ const AdminDashboard = () => {
               className="flex-1 md:flex-none bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/40 font-bold px-4 py-2.5 rounded-xl text-xs flex items-center justify-center space-x-2 transition-colors"
             >
               <FileSpreadsheet className="w-4 h-4" />
-              <span>Live Excel Sheet</span>
+              <span>Google Sheet ↗</span>
             </a>
           </div>
         </div>

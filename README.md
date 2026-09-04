@@ -155,6 +155,53 @@ Scroll down to the **"Environment Variables"** section in Render, click **"Add E
 | `WHATSAPP_GROUP_LINK` | `https://chat.whatsapp.com/...` | Group link shown on leader dashboard |
 | `PPT_TEMPLATE_URL` | `https://docs.google.com/presentation/...` | Official SIH PPT format |
 | `LIVE_SPREADSHEET_URL`| `https://docs.google.com/spreadsheets/d/1LHSq7l3zEeAtCKd8ZfqyDA7RJFcyMR541cljhQClUGY/edit?usp=sharing` | Official Google Sheets sync sheet |
+| `GOOGLE_SHEET_WEBHOOK_URL` | *(Optional)* `https://script.google.com/macros/s/.../exec` | Apps Script webhook for real-time row append |
+
+---
+
+### 📊 How to Keep Your Live Google Sheet Updated
+
+Your Google Sheet can be automatically populated with registered teams using any of these 3 methods:
+
+#### Method 1: Zero-Setup Live Auto-Fetch Formula (Instant & Recommended)
+1. Open your [Official Google Sheet](https://docs.google.com/spreadsheets/d/1LHSq7l3zEeAtCKd8ZfqyDA7RJFcyMR541cljhQClUGY/edit?usp=sharing).
+2. Click on cell **A1**.
+3. Type or paste this formula:
+   ```excel
+   =IMPORTDATA("https://YOUR-APP-NAME.onrender.com/api/spreadsheet/live-csv")
+   ```
+4. Google Sheets will automatically pull all 13 columns (Team ID, Team Name, PS ID, Email, Role, Student Name, Roll Number, Year, Branch, Gender, Category, Registration Date, Status) and refresh live!
+
+#### Method 2: Real-Time Automatic Push (Google Apps Script Webhook)
+To have new registrations append to your Google Sheet the instant a user submits the form:
+1. Open your Google Sheet, go to **Extensions** -> **Apps Script**.
+2. Replace all code with this simple script:
+   ```javascript
+   function doPost(e) {
+     try {
+       var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+       var payload = JSON.parse(e.postData.contents);
+       if (payload.rows && payload.rows.length > 0) {
+         payload.rows.forEach(function(row) {
+           sheet.appendRow(row);
+         });
+       }
+       return ContentService.createTextOutput(JSON.stringify({ result: "success" }))
+         .setMimeType(ContentService.MimeType.JSON);
+     } catch (err) {
+       return ContentService.createTextOutput(JSON.stringify({ result: "error", message: err.toString() }))
+         .setMimeType(ContentService.MimeType.JSON);
+     }
+   }
+   ```
+3. Click **Deploy** -> **New deployment**.
+4. Select type **Web app**. Set **Execute as**: *Me*, and **Who has access**: *Anyone*.
+5. Click **Deploy**, copy the Web app URL, and set it as `GOOGLE_SHEET_WEBHOOK_URL` in your Render Environment Variables!
+
+#### Method 3: One-Click Copy for Google Sheets
+1. Go to `/spreadsheet` on your deployed portal.
+2. Click **"Copy for Sheets"**.
+3. Open your Google Sheet, click cell **A1**, and press `Ctrl + V`. All columns and rows paste in perfect alignment!
 
 ---
 

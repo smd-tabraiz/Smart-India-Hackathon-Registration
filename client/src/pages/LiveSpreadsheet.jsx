@@ -17,7 +17,8 @@ const COLUMNS = [
   { key: 'branch', name: 'Branch', letter: 'I', width: 'min-w-[110px]' },
   { key: 'gender', name: 'Gender', letter: 'J', width: 'min-w-[100px]' },
   { key: 'casteCategory', name: 'Category', letter: 'K', width: 'min-w-[100px]' },
-  { key: 'registrationStatus', name: 'Status', letter: 'L', width: 'min-w-[110px]' },
+  { key: 'registrationDate', name: 'Registration Date', letter: 'L', width: 'min-w-[160px]' },
+  { key: 'registrationStatus', name: 'Status', letter: 'M', width: 'min-w-[110px]' },
 ];
 
 const LiveSpreadsheet = () => {
@@ -29,9 +30,47 @@ const LiveSpreadsheet = () => {
   const [syncStatus, setSyncStatus] = useState('Synced with MongoDB');
   const [copiedLink, setCopiedLink] = useState(false);
   const [copiedTsv, setCopiedTsv] = useState(false);
+  const [copiedFormula, setCopiedFormula] = useState(false);
+  const [showSyncModal, setShowSyncModal] = useState(false);
+  const [pushingToSheets, setPushingToSheets] = useState(false);
+  const [pushResult, setPushResult] = useState(null);
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'mobile-cards'
 
   const GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/1LHSq7l3zEeAtCKd8ZfqyDA7RJFcyMR541cljhQClUGY/edit?usp=sharing';
+  const LIVE_CSV_URL = `${window.location.origin}/api/spreadsheet/live-csv`;
+  const IMPORTDATA_FORMULA = `=IMPORTDATA("${LIVE_CSV_URL}")`;
+
+  const handleCopyFormula = () => {
+    navigator.clipboard.writeText(IMPORTDATA_FORMULA);
+    setCopiedFormula(true);
+    setTimeout(() => setCopiedFormula(false), 3000);
+  };
+
+  const handlePushToGoogleSheet = async () => {
+    setPushingToSheets(true);
+    setPushResult(null);
+    try {
+      const res = await API.post('/spreadsheet/dump-to-google-sheet');
+      if (res.data && res.data.success) {
+        setPushResult({
+          type: 'success',
+          message: `Successfully synced ${res.data.totalTeams || 0} teams (${res.data.totalRows || 0} rows) to Google Sheet!`,
+        });
+      } else {
+        setPushResult({
+          type: 'error',
+          message: res.data?.message || 'Please configure GOOGLE_SHEET_WEBHOOK_URL or use the =IMPORTDATA formula in your Google Sheet.',
+        });
+      }
+    } catch (err) {
+      setPushResult({
+        type: 'error',
+        message: err.response?.data?.message || 'Error communicating with server.',
+      });
+    } finally {
+      setPushingToSheets(false);
+    }
+  };
 
   const handleCopyTsvForGoogleSheets = () => {
     if (data.length === 0) return;
@@ -243,6 +282,15 @@ const LiveSpreadsheet = () => {
             </a>
 
             <button
+              onClick={() => setShowSyncModal(true)}
+              className="bg-teal-600/30 hover:bg-teal-600/40 text-teal-300 px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 border border-teal-500/40 shadow-sm"
+              title="Configure live sync with Google Sheet"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-teal-400" />
+              <span>Auto-Sync Setup</span>
+            </button>
+
+            <button
               onClick={handleSyncToBackend}
               disabled={saving}
               className="bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white px-3.5 py-2 rounded-xl text-xs font-extrabold flex items-center justify-center space-x-1.5 shadow-lg shadow-emerald-600/20 disabled:opacity-50"
@@ -284,6 +332,34 @@ const LiveSpreadsheet = () => {
           </div>
         </div>
 
+      </div>
+
+      {/* GOOGLE SHEETS LIVE SYNC NOTIFICATION BANNER */}
+      <div className="bg-emerald-950/40 border-b border-emerald-500/20 px-4 py-2.5">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs">
+          <div className="flex items-center space-x-2 text-emerald-300">
+            <Sparkles className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+            <span>
+              <strong>Auto-Sync with Google Sheets:</strong> View all registrations live in Google Sheet using formula or instant push.
+            </span>
+          </div>
+          <div className="flex items-center space-x-2 flex-shrink-0">
+            <button
+              onClick={handleCopyFormula}
+              className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1 rounded-lg text-[11px] flex items-center space-x-1.5 transition-all shadow-sm"
+              title="Copy =IMPORTDATA formula for Google Sheets cell A1"
+            >
+              {copiedFormula ? <CheckCircle2 className="w-3 h-3 text-white" /> : <Copy className="w-3 h-3" />}
+              <span>{copiedFormula ? 'Formula Copied!' : 'Copy =IMPORTDATA Formula'}</span>
+            </button>
+            <button
+              onClick={() => setShowSyncModal(true)}
+              className="bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold px-3 py-1 rounded-lg text-[11px] border border-slate-700 transition-all"
+            >
+              Sync Guide
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* SPREADSHEET MAIN CONTAINER */}
@@ -445,6 +521,109 @@ const LiveSpreadsheet = () => {
           </div>
         )}
       </div>
+
+      {/* GOOGLE SHEET SYNC GUIDE MODAL */}
+      {showSyncModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full p-5 sm:p-6 space-y-4 shadow-2xl my-8">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center space-x-2.5">
+                <div className="p-2 bg-emerald-500/20 text-emerald-400 rounded-xl border border-emerald-500/30">
+                  <FileSpreadsheet className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white">Google Sheet Real-Time Sync</h3>
+                  <p className="text-xs text-slate-400">Keep your official Google Sheet updated automatically</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowSyncModal(false)}
+                className="text-slate-400 hover:text-white p-1 rounded-lg text-lg leading-none"
+              >
+                ✕
+              </button>
+            </div>
+
+            {pushResult && (
+              <div className={`p-3 rounded-xl text-xs font-semibold flex items-center space-x-2 border ${
+                pushResult.type === 'success'
+                  ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30'
+                  : 'bg-amber-500/10 text-amber-300 border-amber-500/30'
+              }`}>
+                {pushResult.type === 'success' ? <CheckCircle2 className="w-4 h-4 flex-shrink-0" /> : <AlertCircle className="w-4 h-4 flex-shrink-0" />}
+                <span>{pushResult.message}</span>
+              </div>
+            )}
+
+            {/* METHOD 1: 1-Click Formula */}
+            <div className="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-emerald-400 uppercase tracking-wide">Method 1: Auto-Fetch Formula (Instant Real-time)</span>
+                <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded font-bold">Recommended</span>
+              </div>
+              <p className="text-xs text-slate-300">
+                1. Open your <a href={GOOGLE_SHEET_URL} target="_blank" rel="noopener noreferrer" className="text-cyan-400 underline font-semibold">Google Sheet ↗</a>.
+                <br />
+                2. In cell <strong>A1</strong>, paste the formula below:
+              </p>
+              <div className="flex items-center space-x-2 bg-slate-900 p-2.5 rounded-lg border border-slate-800 font-mono text-xs text-emerald-300">
+                <span className="flex-grow select-all overflow-x-auto text-[11px] sm:text-xs">{IMPORTDATA_FORMULA}</span>
+                <button
+                  onClick={handleCopyFormula}
+                  className="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1 rounded text-[11px] font-bold flex-shrink-0 flex items-center space-x-1"
+                >
+                  {copiedFormula ? <CheckCircle2 className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                  <span>{copiedFormula ? 'Copied' : 'Copy'}</span>
+                </button>
+              </div>
+              <p className="text-[11px] text-slate-400">
+                Google Sheets will automatically fetch all registered teams & members directly from this portal and refresh live!
+              </p>
+            </div>
+
+            {/* METHOD 2: 1-Click Clipboard Paste */}
+            <div className="bg-slate-950 border border-slate-800 rounded-xl p-3.5 space-y-1.5">
+              <span className="text-xs font-bold text-blue-400 uppercase tracking-wide">Method 2: One-Click Copy & Paste</span>
+              <p className="text-xs text-slate-300">
+                Click <strong>"Copy for Sheets"</strong> in the top toolbar, open cell <strong>A1</strong> in Google Sheet, and press <kbd className="bg-slate-800 px-1.5 py-0.5 rounded text-white border border-slate-700">Ctrl + V</kbd>.
+              </p>
+            </div>
+
+            {/* METHOD 3: Background Webhook Push */}
+            <div className="bg-slate-950 border border-slate-800 rounded-xl p-3.5 space-y-2.5">
+              <span className="text-xs font-bold text-indigo-400 uppercase tracking-wide">Method 3: Background Webhook Push</span>
+              <p className="text-xs text-slate-300">
+                If you added the Google Apps Script Webhook to your sheet, click below to sync all records now:
+              </p>
+              <button
+                onClick={handlePushToGoogleSheet}
+                disabled={pushingToSheets}
+                className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-bold px-3.5 py-1.5 rounded-lg flex items-center space-x-2 transition-colors"
+              >
+                {pushingToSheets ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+                <span>{pushingToSheets ? 'Pushing Data...' : 'Push All Records to Google Sheet Webhook'}</span>
+              </button>
+            </div>
+
+            <div className="flex items-center justify-end space-x-3 pt-2">
+              <a
+                href={GOOGLE_SHEET_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center space-x-1.5"
+              >
+                <span>Open Google Sheet ↗</span>
+              </a>
+              <button
+                onClick={() => setShowSyncModal(false)}
+                className="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold px-4 py-2 rounded-xl"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* FOOTER STATUS BAR */}
       <div className="bg-slate-900 border-t border-slate-800 px-4 sm:px-6 py-2.5 text-xs text-slate-400 flex flex-wrap items-center justify-between gap-2">

@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Team = require('../models/Team');
 const localStore = require('../config/localStore');
+const { formatTeamRows, syncAllTeamsToSheet } = require('../utils/googleSheets');
 
 const isDbConnected = () => mongoose.connection.readyState === 1;
 
@@ -40,6 +41,9 @@ const getSpreadsheetData = async (req, res) => {
             gender: m.gender,
             casteCategory: m.casteCategory,
             role: m.isLeader ? 'Leader' : 'Member',
+            registrationDate: t.createdAt
+              ? new Date(t.createdAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })
+              : new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
             registrationStatus: t.registrationStatus,
             updatedAt: t.updatedAt || t.createdAt || new Date().toISOString(),
           });
@@ -63,6 +67,7 @@ const getSpreadsheetData = async (req, res) => {
         gender: '',
         casteCategory: '',
         role: '',
+        registrationDate: '',
         registrationStatus: '',
         updatedAt: '',
       });
@@ -83,6 +88,7 @@ const getSpreadsheetData = async (req, res) => {
         { key: 'branch', label: 'Branch' },
         { key: 'gender', label: 'Gender' },
         { key: 'casteCategory', label: 'Category' },
+        { key: 'registrationDate', label: 'Registration Date' },
         { key: 'registrationStatus', label: 'Status' }
       ],
       data: rows
@@ -160,7 +166,91 @@ const syncSpreadsheetData = async (req, res) => {
   }
 };
 
+// @desc    Live CSV stream for Google Sheets =IMPORTDATA formula
+// @route   GET /api/spreadsheet/live-csv
+// @access  Public
+const getLiveCsv = async (req, res) => {
+  try {
+    let teams = [];
+    if (isDbConnected()) {
+      try {
+        teams = await Team.find().sort({ createdAt: 1 });
+      } catch (err) {
+        teams = localStore.getTeams();
+      }
+    } else {
+      teams = localStore.getTeams();
+    }
+
+    const headers = [
+      'Team ID',
+      'Team Name',
+      'Problem Statement ID',
+      'Leader Email',
+      'Member Role',
+      'Student Name',
+      'Roll Number',
+      'Year',
+      'Branch',
+      'Gender',
+      'Category',
+      'Registration Date',
+      'Status'
+    ];
+
+    const escapeCsv = (val) => {
+      const s = String(val !== undefined && val !== null ? val : '').replace(/"/g, '""');
+      return `"${s}"`;
+    };
+
+    const lines = [headers.map(escapeCsv).join(',')];
+
+    teams.forEach((t) => {
+      const rows = formatTeamRows(t);
+      rows.forEach((row) => {
+        lines.push(row.map(escapeCsv).join(','));
+      });
+    });
+
+    const csvContent = lines.join('\r\n');
+
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', 'inline; filename="sih_registrations.csv"');
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.status(200).send(csvContent);
+  } catch (error) {
+    console.error('CSV Generation Error:', error);
+    res.status(500).send('Error generating live CSV');
+  }
+};
+
+// @desc    Bulk push all registered teams to Google Sheet Webhook
+// @route   POST /api/spreadsheet/dump-to-google-sheet
+// @access  Public (or Admin)
+const dumpToGoogleSheet = async (req, res) => {
+  try {
+    let teams = [];
+    if (isDbConnected()) {
+      try {
+        teams = await Team.find().sort({ createdAt: 1 });
+      } catch (err) {
+        teams = localStore.getTeams();
+      }
+    } else {
+      teams = localStore.getTeams();
+    }
+
+    const result = await syncAllTeamsToSheet(teams);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 module.exports = {
   getSpreadsheetData,
-  syncSpreadsheetData
+  syncSpreadsheetData,
+  getLiveCsv,
+  dumpToGoogleSheet,
 };
+
