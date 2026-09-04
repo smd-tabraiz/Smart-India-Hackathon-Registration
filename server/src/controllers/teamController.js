@@ -1,14 +1,10 @@
 const mongoose = require('mongoose');
 const Team = require('../models/Team');
 const User = require('../models/User');
+const localStore = require('../config/localStore');
 const { generateTeamId } = require('../utils/teamIdGenerator');
 const { sendRegistrationEmail } = require('../utils/sendGrid');
 const { generateToken } = require('./authController');
-
-// In-Memory Fallback Storage when MongoDB server is offline
-const inMemoryUsers = [];
-const inMemoryTeams = [];
-let teamSeqCounter = 1;
 
 // Helper to check if DB is connected
 const isDbConnected = () => mongoose.connection.readyState === 1;
@@ -28,7 +24,7 @@ const validateMembersArray = async (members, currentTeamId = null) => {
   }
 
   // 2. Check Female count
-  const femaleCount = members.filter((m) => m.gender === 'Female').length;
+  const femaleCount = members.filter((m) => m.gender === 'F' || m.gender === 'Female').length;
   if (femaleCount < 1) {
     return 'Mandatory Rule Violated: At least ONE female student must be present in every team of 6.';
   }
@@ -49,11 +45,23 @@ const validateMembersArray = async (members, currentTeamId = null) => {
   // 5. Duplicate roll numbers across registered teams
   let existingTeams = [];
   if (isDbConnected()) {
-    existingTeams = await Team.find(
-      currentTeamId ? { teamId: { $ne: currentTeamId } } : {}
-    );
+    try {
+      existingTeams = await Team.find(
+        currentTeamId ? { teamId: { $ne: currentTeamId } } : {}
+      );
+    } catch (err) {
+      existingTeams = localStore.getTeams().filter((t) => t.teamId !== currentTeamId);
+    }
   } else {
-    existingTeams = inMemoryTeams.filter((t) => t.teamId !== currentTeamId);
+    existingTeams = localStore.getTeams().filter((t) => t.teamId !== currentTeamId);
+  }
+
+  // Also include localStore teams if DB had teams
+  const localList = localStore.getTeams().filter((t) => t.teamId !== currentTeamId);
+  for (const lt of localList) {
+    if (!existingTeams.some((et) => et.teamId === lt.teamId)) {
+      existingTeams.push(lt);
+    }
   }
 
   for (const team of existingTeams) {
@@ -85,25 +93,27 @@ const registerTeam = async (req, res) => {
 
     // 1. Check if email is already taken
     if (isDbConnected()) {
-      const existingUser = await User.findOne({ email: formattedEmail });
-      if (existingUser) {
-        return res.status(400).json({ message: 'This email is already registered. Please login or use a different email.' });
+      try {
+        const existingUser = await User.findOne({ email: formattedEmail });
+        if (existingUser) {
+          return res.status(400).json({ message: 'This email is already registered. Please login or use a different email.' });
+        }
+        const existingTeam = await Team.findOne({ teamName: new RegExp(`^${formattedTeamName}$`, 'i') });
+        if (existingTeam) {
+          return res.status(400).json({ message: `Team Name "${teamName}" is already taken.` });
+        }
+      } catch (err) {
+        // Fallback
       }
-      const existingTeam = await Team.findOne({ teamName: new RegExp(`^${formattedTeamName}$`, 'i') });
-      if (existingTeam) {
-        return res.status(400).json({ message: `Team Name "${teamName}" is already taken.` });
-      }
-    } else {
-      const existingUser = inMemoryUsers.find((u) => u.email === formattedEmail);
-      if (existingUser) {
-        return res.status(400).json({ message: 'This email is already registered. Please login or use a different email.' });
-      }
-      const existingTeam = inMemoryTeams.find(
-        (t) => t.teamName.toLowerCase() === formattedTeamName.toLowerCase()
-      );
-      if (existingTeam) {
-        return res.status(400).json({ message: `Team Name "${teamName}" is already taken.` });
-      }
+    }
+
+    const localUser = localStore.findUserByEmail(formattedEmail);
+    if (localUser) {
+      return res.status(400).json({ message: 'This email is already registered. Please login or use a different email.' });
+    }
+    const localTeam = localStore.findTeamByName(formattedTeamName);
+    if (localTeam) {
+      return res.status(400).json({ message: `Team Name "${teamName}" is already taken.` });
     }
 
     // 2. Validate members array
@@ -115,9 +125,14 @@ const registerTeam = async (req, res) => {
     // 3. Generate unique server-side Team ID
     let teamId = '';
     if (isDbConnected()) {
-      teamId = await generateTeamId();
+      try {
+        teamId = await generateTeamId();
+      } catch (err) {
+        const seqPadded = String(localStore.getTeams().length + 1).padStart(4, '0');
+        teamId = `SIH26-CC-${seqPadded}`;
+      }
     } else {
-      const seqPadded = String(teamSeqCounter++).padStart(4, '0');
+      const seqPadded = String(localStore.getTeams().length + 1).padStart(4, '0');
       teamId = `SIH26-CC-${seqPadded}`;
     }
 
@@ -135,14 +150,40 @@ const registerTeam = async (req, res) => {
     let teamObj = null;
 
     if (isDbConnected()) {
-      userObj = await User.create({
+      try {
+        userObj = await User.create({
+          email: formattedEmail,
+          password,
+          role: 'leader',
+          teamId,
+        });
+
+        teamObj = await Team.create({
+          teamId,
+          teamName: formattedTeamName,
+          problemStatementId: formattedPsId,
+          leaderUser: userObj._id,
+          leaderEmail: userObj.email,
+          members: formattedMembers,
+          registrationStatus: 'registered',
+          emailSent: false,
+        });
+      } catch (err) {
+        console.error('MongoDB write failed, using localStore:', err.message);
+        userObj = null;
+        teamObj = null;
+      }
+    }
+
+    if (!userObj || !teamObj) {
+      userObj = await localStore.addUser({
         email: formattedEmail,
         password,
         role: 'leader',
         teamId,
       });
 
-      teamObj = await Team.create({
+      teamObj = localStore.addTeam({
         teamId,
         teamName: formattedTeamName,
         problemStatementId: formattedPsId,
@@ -153,34 +194,35 @@ const registerTeam = async (req, res) => {
         emailSent: false,
       });
     } else {
-      userObj = {
-        _id: 'mem_user_' + Date.now(),
+      // Sync backup to localStore
+      await localStore.addUser({
+        _id: String(userObj._id),
         email: formattedEmail,
+        password,
         role: 'leader',
         teamId,
-      };
-      inMemoryUsers.push(userObj);
-
-      teamObj = {
-        _id: 'mem_team_' + Date.now(),
+      });
+      localStore.addTeam({
+        _id: String(teamObj._id),
         teamId,
         teamName: formattedTeamName,
         problemStatementId: formattedPsId,
-        leaderUser: userObj._id,
+        leaderUser: String(userObj._id),
         leaderEmail: userObj.email,
         members: formattedMembers,
         registrationStatus: 'registered',
         emailSent: false,
-        createdAt: new Date().toISOString(),
-      };
-      inMemoryTeams.push(teamObj);
+        createdAt: teamObj.createdAt,
+      });
     }
 
     // 4. Send confirmation email
-    const emailSent = await sendRegistrationEmail(teamObj);
-    if (emailSent && isDbConnected()) {
+    const emailResult = await sendRegistrationEmail(teamObj);
+    if (emailResult.success && isDbConnected()) {
       teamObj.emailSent = true;
       await teamObj.save();
+    } else if (emailResult.success) {
+      teamObj.emailSent = true;
     }
 
     // 5. Generate JWT Token
@@ -197,6 +239,9 @@ const registerTeam = async (req, res) => {
         teamId: userObj.teamId,
       },
       token,
+      emailSent: emailResult.success,
+      emailMethod: emailResult.method,
+      emailPreviewUrl: emailResult.previewUrl || null,
       whatsappGroupLink: process.env.WHATSAPP_GROUP_LINK || 'https://chat.whatsapp.com/SIH2026CodersClubCIE',
     });
   } catch (error) {
@@ -212,9 +257,14 @@ const getMyTeam = async (req, res) => {
   try {
     let team = null;
     if (isDbConnected()) {
-      team = await Team.findOne({ leaderUser: req.user._id });
-    } else {
-      team = inMemoryTeams.find((t) => String(t.leaderUser) === String(req.user._id) || t.leaderEmail === req.user.email);
+      try {
+        team = await Team.findOne({ leaderUser: req.user._id });
+      } catch (err) {
+        team = null;
+      }
+    }
+    if (!team) {
+      team = localStore.findTeamByLeaderIdOrEmail(req.user._id, req.user.email);
     }
 
     if (!team) {
@@ -222,7 +272,7 @@ const getMyTeam = async (req, res) => {
     }
     res.json({
       team,
-      whatsappGroupLink: process.env.WHATSAPP_GROUP_LINK || 'https://chat.whatsapp.com/SIH2026CodersClubCIE',
+      whatsappGroupLink: process.env.WHATSAPP_GROUP_LINK || 'https://chat.whatsapp.com/EIoDz1GewoZLVXYJEdfR0t?s=sw&p=a&mlu=4&ilr=4',
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -236,9 +286,14 @@ const updateMyTeam = async (req, res) => {
   try {
     let team = null;
     if (isDbConnected()) {
-      team = await Team.findOne({ leaderUser: req.user._id });
-    } else {
-      team = inMemoryTeams.find((t) => String(t.leaderUser) === String(req.user._id) || t.leaderEmail === req.user.email);
+      try {
+        team = await Team.findOne({ leaderUser: req.user._id });
+      } catch (err) {
+        team = null;
+      }
+    }
+    if (!team) {
+      team = localStore.findTeamByLeaderIdOrEmail(req.user._id, req.user.email);
     }
 
     if (!team) {
@@ -272,8 +327,19 @@ const updateMyTeam = async (req, res) => {
     }
 
     if (isDbConnected() && typeof team.save === 'function') {
-      await team.save();
+      try {
+        await team.save();
+      } catch (err) {
+        console.error('Mongo save failed:', err.message);
+      }
     }
+
+    // Also update localStore
+    localStore.updateTeam(team.teamId, {
+      teamName: team.teamName,
+      problemStatementId: team.problemStatementId,
+      members: team.members,
+    });
 
     res.json({ message: 'Team details updated successfully!', team });
   } catch (error) {
@@ -285,6 +351,4 @@ module.exports = {
   registerTeam,
   getMyTeam,
   updateMyTeam,
-  inMemoryUsers,
-  inMemoryTeams,
 };

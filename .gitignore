@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Production Build Outputs
+client/dist/
+dist/
+
+# Environment Variables & Secrets (NEVER COMMIT SENSITIVE KEYS)
+.env
+.env.*
+!.env.example
+*.env
+server/.env
+server/.env.local
+
+# Local database & persistent offline storage (Student Data & Passwords)
+server/data/*.json
+data/
+
+# Registration Data Dumps & CSV Exports
+*.csv
+*.tsv
+sih_registrations_dump.*
+
+# Debug Logs & Temp Files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.system_generated/
+
+# OS Specific Files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Scratch scripts
+copy_to_*.ps1

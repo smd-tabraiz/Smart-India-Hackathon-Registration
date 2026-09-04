@@ -47,9 +47,16 @@ export const AuthProvider = ({ children }) => {
   const loginLeader = async (email, password) => {
     const res = await API.post('/auth/login', { email, password });
     localStorage.setItem('token', res.data.token);
-    localStorage.setItem('role', 'leader');
-    setUser({ _id: res.data._id, email: res.data.email, role: 'leader', teamId: res.data.teamId });
-    setTeam(res.data.team);
+    const role = res.data.role || 'leader';
+    localStorage.setItem('role', role);
+
+    if (role === 'admin') {
+      localStorage.setItem('adminEmail', res.data.email);
+      setUser({ email: res.data.email, role: 'admin' });
+    } else {
+      setUser({ _id: res.data._id, email: res.data.email, role: 'leader', teamId: res.data.teamId });
+      setTeam(res.data.team);
+    }
     return res.data;
   };
 

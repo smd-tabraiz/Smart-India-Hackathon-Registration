@@ -11,17 +11,17 @@ const memberSchema = new mongoose.Schema({
   branch: { 
     type: String, 
     required: true, 
-    enum: ['CSE', 'IT', 'AI & DS', 'AI & ML', 'ECE', 'EEE', 'Mechanical', 'Civil', 'Other'] 
+    enum: ['CSE', 'CSE - (AI & ML)', 'CSE - (DS)', 'CSBS', 'ECE', 'EEE', 'MECH', 'CIVIL', 'IT', 'AI & DS', 'AI & ML', 'Mechanical', 'Civil', 'Other'] 
   },
   gender: { 
     type: String, 
     required: true, 
-    enum: ['Male', 'Female', 'Other'] 
+    enum: ['M', 'F', 'Male', 'Female', 'Other'] 
   },
   casteCategory: { 
     type: String, 
     required: true, 
-    enum: ['GEN', 'EWS', 'OC', 'BC'] 
+    enum: ['GEN', 'EWS', 'OC', 'BC', 'SC', 'ST', 'sc', 'st', 'bc'] 
   },
   isLeader: { type: Boolean, default: false }
 });
@@ -67,7 +67,7 @@ const teamSchema = new mongoose.Schema(
         },
         {
           validator: function (members) {
-            const femaleCount = members.filter((m) => m.gender === 'Female').length;
+            const femaleCount = members.filter((m) => m.gender === 'F' || m.gender === 'Female').length;
             return femaleCount >= 1;
           },
           message: 'At least ONE female student must be present in every team of 6.',

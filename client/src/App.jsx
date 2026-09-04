@@ -22,9 +22,9 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <div className="flex flex-col min-h-screen bg-slate-900 text-slate-100">
+        <div className="flex flex-col min-h-screen bg-slate-900 text-slate-100 print:bg-white print:text-black">
           <Navbar />
-          <main className="flex-grow">
+          <main className="flex-grow print:flex-grow-0">
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/about" element={<AboutUs />} />
@@ -41,7 +41,14 @@ function App() {
               <Route path="/terms" element={<Terms />} />
               <Route path="/faq" element={<Faq />} />
               <Route path="/ppt-template" element={<PptTemplate />} />
-              <Route path="/spreadsheet" element={<LiveSpreadsheet />} />
+              <Route
+                path="/spreadsheet"
+                element={
+                  <AdminProtectedRoute>
+                    <LiveSpreadsheet />
+                  </AdminProtectedRoute>
+                }
+              />
               
               {/* Admin Routes */}
               <Route path="/admin/login" element={<AdminLogin />} />

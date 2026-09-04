@@ -1,12 +1,16 @@
 const mongoose = require('mongoose');
 
+// Disable buffering so queries never hang if DB is offline
+mongoose.set('bufferCommands', false);
+
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/sih_portal');
+    const conn = await mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/sih_portal', {
+      serverSelectionTimeoutMS: 3000,
+    });
     console.log(`MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
-    console.error(`MongoDB Connection Error: ${error.message}`);
-    // Do not exit process in dev environment if Mongo isn't running immediately; let API handle fallback gracefully where possible
+    console.error(`MongoDB Connection Note: ${error.message} (Using local persistent store fallback)`);
   }
 };
 

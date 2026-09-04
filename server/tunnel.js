@@ -1,50 +1,37 @@
 require('dotenv').config();
-const ngrok = require('ngrok');
-const fs = require('fs');
+const { spawn } = require('child_process');
 const path = require('path');
 
-const FRONTEND_PORT = 5173;
-const AUTHTOKEN = process.env.NGROK_AUTHTOKEN;
+const DOMAIN = 'bunny-quote-game.ngrok-free.dev';
+const PORT = 5173;
 
-(async () => {
-  try {
-    console.log('🚀 Starting ngrok public tunnel...\n');
+console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+console.log('   🚀 Launching SIH 2026 Public ngrok Tunnel');
+console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+console.log(`  🌐 Public Student Portal   : https://${DOMAIN}`);
+console.log(`  📊 Live Excel Spreadsheet  : https://${DOMAIN}/spreadsheet`);
+console.log(`  🔐 Admin Control Login     : https://${DOMAIN}/admin/login`);
+console.log(`  🔌 Backend REST API        : https://${DOMAIN}/api`);
+console.log(`  ❤  Backend Health Check    : https://${DOMAIN}/api/health`);
+console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+console.log(`Connecting ngrok to local frontend on port ${PORT} with domain ${DOMAIN}...\n`);
 
-    const publicUrl = await ngrok.connect({
-      addr: FRONTEND_PORT,
-      authtoken: AUTHTOKEN,
-    });
+const cmd = process.platform === 'win32' ? 'npx.cmd' : 'npx';
+const ngrokProcess = spawn(cmd, ['ngrok', 'http', `--url=${DOMAIN}`, `${PORT}`], {
+  stdio: 'inherit',
+  shell: true,
+});
 
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('   SIH 2026 Registration Portal — Live Public URLs');
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log(`  🌐 Public Student Portal   : ${publicUrl}`);
-    console.log(`  📊 Live Excel Spreadsheet  : ${publicUrl}/spreadsheet`);
-    console.log(`  🔐 Admin Control Login     : ${publicUrl}/admin/login`);
-    console.log(`  🔌 Backend REST API        : ${publicUrl}/api`);
-    console.log(`  ❤  Backend Health Check    : ${publicUrl}/api/health`);
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-    console.log('📋 Share the Public Student Portal URL with your students.');
-    console.log('⚠  Keep this terminal window running to maintain public access.\n');
+ngrokProcess.on('error', (err) => {
+  console.error('❌ Failed to start ngrok:', err);
+});
 
-    // Update .env CLIENT_URL
-    const envPath = path.join(__dirname, '.env');
-    let envContent = fs.readFileSync(envPath, 'utf-8');
-    const updatedEnv = envContent.replace(/^CLIENT_URL=.*/m, `CLIENT_URL=${publicUrl}`);
-    fs.writeFileSync(envPath, updatedEnv, 'utf-8');
+ngrokProcess.on('close', (code) => {
+  console.log(`ngrok process exited with code ${code}`);
+});
 
-    process.on('SIGINT', async () => {
-      console.log('\n🛑 Stopping ngrok tunnel...');
-      await ngrok.kill();
-      const envContent2 = fs.readFileSync(envPath, 'utf-8');
-      const restored = envContent2.replace(/^CLIENT_URL=.*/m, 'CLIENT_URL=http://localhost:5173');
-      fs.writeFileSync(envPath, restored, 'utf-8');
-      console.log('✅ Tunnel stopped. CLIENT_URL restored to localhost.');
-      process.exit(0);
-    });
-
-  } catch (err) {
-    console.error('\n❌ ngrok error:', err.message || err);
-    process.exit(1);
-  }
-})();
+process.on('SIGINT', () => {
+  console.log('\n🛑 Stopping ngrok tunnel...');
+  ngrokProcess.kill();
+  process.exit(0);
+});

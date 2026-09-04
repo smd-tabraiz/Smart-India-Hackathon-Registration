@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const Team = require('../models/Team');
-const { inMemoryTeams } = require('./teamController');
+const localStore = require('../config/localStore');
 
 const isDbConnected = () => mongoose.connection.readyState === 1;
 
@@ -11,9 +11,13 @@ const getSpreadsheetData = async (req, res) => {
   try {
     let teams = [];
     if (isDbConnected()) {
-      teams = await Team.find().sort({ createdAt: -1 });
+      try {
+        teams = await Team.find().sort({ createdAt: -1 });
+      } catch (err) {
+        teams = localStore.getTeams();
+      }
     } else {
-      teams = inMemoryTeams;
+      teams = localStore.getTeams();
     }
 
     const rows = [];

@@ -3,6 +3,8 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const dotenv = require('dotenv');
+const path = require('path');
+const fs = require('fs');
 const connectDB = require('./config/db');
 const errorHandler = require('./middleware/errorHandler');
 
@@ -42,10 +44,14 @@ app.use(
   })
 );
 
+// Trust proxy for ngrok & reverse proxies
+app.set('trust proxy', 1);
+
 // Rate Limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 500, // limit each IP to 500 requests per windowMs for high mobile traffic
+  validate: { xForwardedForHeader: false },
   message: 'Too many requests from this IP, please try again later.',
 });
 app.use('/api', limiter);
@@ -62,6 +68,18 @@ app.use('/api/spreadsheet', require('./routes/spreadsheetRoutes'));
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', time: new Date().toISOString() });
 });
+
+// Serve Frontend Static Files in Production (Unified Render / Cloud Deployment)
+const clientDistPath = path.join(__dirname, '../../client/dist');
+if (fs.existsSync(clientDistPath)) {
+  app.use(express.static(clientDistPath));
+  app.get('*', (req, res, next) => {
+    if (req.originalUrl.startsWith('/api')) {
+      return next();
+    }
+    res.sendFile(path.join(clientDistPath, 'index.html'));
+  });
+}
 
 // Central Error Handler
 app.use(errorHandler);

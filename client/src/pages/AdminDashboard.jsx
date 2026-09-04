@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import API from '../services/api';
 import { 
   Users, UserCheck, ShieldAlert, Download, Search, Filter, 
-  Trash2, Eye, Edit3, RefreshCw, AlertCircle, CheckCircle2, X 
+  Trash2, Eye, Edit3, RefreshCw, AlertCircle, CheckCircle2, X, FileSpreadsheet 
 } from 'lucide-react';
 
-const BRANCHES = ['All Branches', 'CSE', 'IT', 'AI & DS', 'AI & ML', 'ECE', 'EEE', 'Mechanical', 'Civil', 'Other'];
+const BRANCHES = ['All Branches', 'CSE', 'CSE - (AI & ML)', 'CSE - (DS)', 'CSBS', 'ECE', 'EEE', 'MECH', 'CIVIL'];
 const YEARS = ['All Years', '1st Year', '2nd Year', '3rd Year', '4th Year'];
 
 const AdminDashboard = () => {
@@ -116,11 +117,12 @@ const AdminDashboard = () => {
 
   const handleSaveAdminEdit = async (e) => {
     e.preventDefault();
+    const targetId = selectedTeam?._id || selectedTeam?.teamId;
     try {
-      await API.put(`/admin/teams/${selectedTeam._id}`, editForm);
+      await API.put(`/admin/teams/${targetId}`, editForm);
       setEditModalOpen(false);
-      fetchTeams();
-      fetchStats();
+      await fetchTeams();
+      await fetchStats();
     } catch (err) {
       alert('Error updating team: ' + (err.response?.data?.message || err.message));
     }
@@ -128,10 +130,11 @@ const AdminDashboard = () => {
 
   const handleDeleteTeam = async (id, teamId, name) => {
     if (window.confirm(`Are you sure you want to delete/disqualify Team ${teamId} (${name})? This action cannot be undone.`)) {
+      const targetId = id || teamId;
       try {
-        await API.delete(`/admin/teams/${id}`);
-        fetchTeams();
-        fetchStats();
+        await API.delete(`/admin/teams/${targetId}`);
+        await fetchTeams();
+        await fetchStats();
       } catch (err) {
         alert('Failed to delete team: ' + (err.response?.data?.message || err.message));
       }
@@ -142,17 +145,40 @@ const AdminDashboard = () => {
     <div className="min-h-screen bg-slate-900 text-white py-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Top Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-          <div>
-            <h1 className="text-3xl font-extrabold tracking-tight">Admin Nomination Control Dashboard</h1>
-            <p className="text-xs text-slate-400 mt-1">Managed by Coders Club & Centre for Entrepreneurship (CIE)</p>
+        {/* Top Header with Club Logos */}
+        <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-xl">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
+            {/* Club Logos */}
+            <div className="flex items-center space-x-3 bg-slate-900/90 p-2.5 rounded-2xl border border-slate-800 shadow-md shrink-0">
+              <div className="text-center">
+                <img
+                  src="/cc_logo.jpg"
+                  alt="Coders' Club"
+                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl object-contain bg-white p-1 border border-slate-700 shadow-sm"
+                />
+                <span className="text-[10px] text-slate-400 block font-bold mt-1">Coders' Club</span>
+              </div>
+              <span className="text-slate-600 font-extrabold text-base">×</span>
+              <div className="text-center">
+                <img
+                  src="/cie_logo.jpg"
+                  alt="Centre for Entrepreneurship (CIE)"
+                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl object-contain bg-white p-1 border border-slate-700 shadow-sm"
+                />
+                <span className="text-[10px] text-slate-400 block font-bold mt-1">CIE</span>
+              </div>
+            </div>
+
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">Admin Nomination Control Dashboard</h1>
+              <p className="text-xs text-slate-400 mt-1">Managed jointly by <strong className="text-slate-200">Coders Club</strong> & <strong className="text-slate-200">Centre for Entrepreneurship (CIE)</strong></p>
+            </div>
           </div>
 
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-3 w-full md:w-auto">
             <button
               onClick={() => { fetchStats(); fetchTeams(); }}
-              className="bg-slate-800 hover:bg-slate-700 text-slate-200 p-2.5 rounded-xl border border-slate-700 text-xs font-semibold flex items-center space-x-2"
+              className="flex-1 md:flex-none bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2.5 rounded-xl border border-slate-700 text-xs font-semibold flex items-center justify-center space-x-2 transition-colors"
             >
               <RefreshCw className="w-4 h-4 text-cyan-400" />
               <span>Refresh</span>
@@ -160,11 +186,21 @@ const AdminDashboard = () => {
 
             <button
               onClick={handleExportCsv}
-              className="bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center space-x-2 shadow-lg shadow-emerald-600/20"
+              className="flex-1 md:flex-none bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center justify-center space-x-2 shadow-lg shadow-emerald-600/20 transition-colors"
             >
               <Download className="w-4 h-4" />
               <span>Export CSV</span>
             </button>
+
+            <a
+              href="https://docs.google.com/spreadsheets/d/1LHSq7l3zEeAtCKd8ZfqyDA7RJFcyMR541cljhQClUGY/edit?usp=sharing"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 md:flex-none bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/40 font-bold px-4 py-2.5 rounded-xl text-xs flex items-center justify-center space-x-2 transition-colors"
+            >
+              <FileSpreadsheet className="w-4 h-4" />
+              <span>Live Excel Sheet</span>
+            </a>
           </div>
         </div>
 
@@ -301,7 +337,7 @@ const AdminDashboard = () => {
                 </thead>
                 <tbody className="divide-y divide-slate-800">
                   {teams.map((t) => {
-                    const females = t.members.filter((m) => m.gender === 'Female').length;
+                    const females = t.members.filter((m) => m.gender === 'Female' || m.gender === 'F').length;
                     return (
                       <tr key={t._id} className="hover:bg-slate-900/50 transition-colors">
                         <td className="p-3 font-mono font-bold text-cyan-400">{t.teamId}</td>
@@ -402,7 +438,15 @@ const AdminDashboard = () => {
                         <td className="p-2 text-cyan-300 font-mono">{m.rollNumber}</td>
                         <td className="p-2">{m.year}</td>
                         <td className="p-2">{m.branch}</td>
-                        <td className="p-2">{m.gender}</td>
+                        <td className="p-2">
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                            (m.gender === 'F' || m.gender === 'Female') 
+                              ? 'bg-pink-500/20 text-pink-300 border border-pink-500/30' 
+                              : 'bg-orange-500/20 text-orange-300 border border-orange-500/30'
+                          }`}>
+                            {m.gender === 'Female' ? 'F' : (m.gender === 'Male' ? 'M' : m.gender)}
+                          </span>
+                        </td>
                         <td className="p-2">{m.casteCategory}</td>
                       </tr>
                     ))}

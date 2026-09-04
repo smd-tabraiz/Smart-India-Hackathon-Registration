@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles, Users, Award, ShieldCheck, ArrowRight, CheckCircle2, FileSpreadsheet, MessageSquare, AlertCircle } from 'lucide-react';
+import { Users, Award, ShieldCheck, ArrowRight, CheckCircle2, FileSpreadsheet, MessageSquare, AlertCircle } from 'lucide-react';
 
 const Home = () => {
   return (
@@ -10,13 +10,12 @@ const Home = () => {
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-30"></div>
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center space-x-2 bg-blue-500/10 border border-blue-500/30 text-blue-400 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-8">
-            <Sparkles className="w-4 h-4 text-cyan-400" />
-            <span>Smart India Hackathon 2026 Internal Nominations</span>
+          <div className="inline-flex items-center bg-blue-500/15 border border-cyan-400/40 text-cyan-300 px-6 sm:px-8 py-2.5 sm:py-3 rounded-full text-base sm:text-lg font-bold uppercase tracking-wider mb-8 shadow-lg shadow-cyan-500/10">
+            <span>Coders Club × CIE Presents</span>
           </div>
 
           <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-white max-w-4xl mx-auto leading-tight">
-            Coders Club <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-400 to-amber-400">× CIE</span> Registration Portal
+            Smart India Hackathon <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-400 to-amber-400">Registration Portal</span>
           </h1>
 
           <p className="mt-6 text-lg sm:text-xl text-slate-300 max-w-2xl mx-auto font-light leading-relaxed">
@@ -32,12 +31,19 @@ const Home = () => {
               <span>Register Team Now</span>
               <ArrowRight className="w-5 h-5" />
             </Link>
-            <Link
-              to="/ppt-template"
+            <a
+              href="https://docs.google.com/presentation/d/1Bv5uDwTC8kJJMgljx0dtSGhXE69v6j30/edit?usp=sharing&ouid=111454085469850450471&rtpof=true&sd=true"
+              target="_blank"
+              rel="noopener noreferrer"
               className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-semibold text-base px-7 py-4 rounded-xl transition-all"
             >
               <FileSpreadsheet className="w-5 h-5 text-amber-400" />
               <span>Download PPT Template</span>
+            </a>
+          </div>
+          <div className="mt-3">
+            <Link to="/ppt-template" className="text-xs text-cyan-400 hover:text-cyan-300 transition-colors font-medium">
+              View Slide-by-Slide Guidelines & Direct PPTX Download →
             </Link>
           </div>
 

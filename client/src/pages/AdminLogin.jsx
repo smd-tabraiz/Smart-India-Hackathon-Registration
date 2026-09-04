@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { ShieldCheck, Lock, Mail, AlertCircle } from 'lucide-react';
 
@@ -7,7 +7,7 @@ const AdminLogin = () => {
   const { loginAdmin } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState('admin@codersclub.edu.in');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -53,9 +53,10 @@ const AdminLogin = () => {
               <input
                 type="email"
                 required
+                placeholder="admin@codersclub.edu.in or asmaeram006@gmail.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-4 py-3 text-sm text-white focus:outline-none focus:border-amber-500"
+                className="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-4 py-3 text-sm text-white focus:outline-none focus:border-amber-500 placeholder-slate-500"
               />
             </div>
           </div>
@@ -67,13 +68,12 @@ const AdminLogin = () => {
               <input
                 type="password"
                 required
-                placeholder="Admin password"
+                placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-4 py-3 text-sm text-white focus:outline-none focus:border-amber-500"
               />
             </div>
-            <p className="text-[11px] text-slate-500 mt-1">Default credentials set in .env file (AdminSIH2026!Secure)</p>
           </div>
 
           <button
@@ -84,6 +84,15 @@ const AdminLogin = () => {
             {loading ? 'Authenticating...' : 'Login to Admin Dashboard'}
           </button>
         </form>
+
+        <div className="mt-5 pt-4 border-t border-slate-800 text-center">
+          <Link
+            to="/login"
+            className="inline-flex items-center gap-1.5 text-xs text-cyan-400/90 hover:text-cyan-300 font-medium hover:underline"
+          >
+            Are you a Team Leader? Go to Leader Login →
+          </Link>
+        </div>
       </div>
     </div>
   );

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import API from '../services/api';
 import { 
   FileSpreadsheet, Save, Download, Share2, Plus, Search, RefreshCw, 
-  CheckCircle2, AlertCircle, Copy, Grid, Layers, Sparkles, Smartphone, Table 
+  CheckCircle2, AlertCircle, Copy, Grid, Layers, Sparkles, Smartphone, Table, ExternalLink 
 } from 'lucide-react';
 
 const COLUMNS = [
@@ -28,7 +28,22 @@ const LiveSpreadsheet = () => {
   const [activeCell, setActiveCell] = useState({ rowIdx: 0, colKey: 'teamName' });
   const [syncStatus, setSyncStatus] = useState('Synced with MongoDB');
   const [copiedLink, setCopiedLink] = useState(false);
+  const [copiedTsv, setCopiedTsv] = useState(false);
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'mobile-cards'
+
+  const GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/1LHSq7l3zEeAtCKd8ZfqyDA7RJFcyMR541cljhQClUGY/edit?usp=sharing';
+
+  const handleCopyTsvForGoogleSheets = () => {
+    if (data.length === 0) return;
+    const headers = COLUMNS.map((c) => c.name).join('\t');
+    const rows = data.map((r) =>
+      COLUMNS.map((c) => (r[c.key] !== undefined && r[c.key] !== null ? String(r[c.key]).replace(/\t/g, ' ') : '')).join('\t')
+    );
+    const tsvContent = [headers, ...rows].join('\n');
+    navigator.clipboard.writeText(tsvContent);
+    setCopiedTsv(true);
+    setTimeout(() => setCopiedTsv(false), 3000);
+  };
 
   const fetchSpreadsheetData = async () => {
     setLoading(true);
@@ -70,7 +85,7 @@ const LiveSpreadsheet = () => {
       rollNumber: '',
       year: '3rd Year',
       branch: 'CSE',
-      gender: 'Male',
+      gender: 'M',
       casteCategory: 'GEN',
       role: 'Member',
       registrationStatus: 'registered',
@@ -208,6 +223,26 @@ const LiveSpreadsheet = () => {
             </button>
 
             <button
+              onClick={handleCopyTsvForGoogleSheets}
+              className="bg-indigo-600/30 hover:bg-indigo-600/40 text-indigo-300 px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 border border-indigo-500/40 shadow-sm"
+              title="Copy all rows to clipboard formatted for 1-click paste into Google Sheets"
+            >
+              {copiedTsv ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+              <span>{copiedTsv ? 'Copied for Sheets!' : 'Copy for Sheets'}</span>
+            </button>
+
+            <a
+              href={GOOGLE_SHEET_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-emerald-600/30 hover:bg-emerald-600/40 text-emerald-300 px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 border border-emerald-500/40 shadow-sm"
+              title="Open the official Google Sheet in new tab"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              <span>Open Google Sheet ↗</span>
+            </a>
+
+            <button
               onClick={handleSyncToBackend}
               disabled={saving}
               className="bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white px-3.5 py-2 rounded-xl text-xs font-extrabold flex items-center justify-center space-x-1.5 shadow-lg shadow-emerald-600/20 disabled:opacity-50"
@@ -311,13 +346,12 @@ const LiveSpreadsheet = () => {
                   <div>
                     <label className="text-[10px] text-slate-400 uppercase block">Gender</label>
                     <select
-                      value={row.gender || 'Male'}
+                      value={row.gender === 'Female' ? 'F' : (row.gender === 'Male' ? 'M' : (row.gender || 'M'))}
                       onChange={(e) => handleCellChange(rowIdx, 'gender', e.target.value)}
                       className="w-full bg-slate-950 border border-slate-700 rounded px-2 py-1.5 text-white"
                     >
-                      <option value="Male">Male</option>
-                      <option value="Female">Female</option>
-                      <option value="Other">Other</option>
+                      <option value="M">M</option>
+                      <option value="F">F</option>
                     </select>
                   </div>
                   <div>
@@ -394,7 +428,8 @@ const LiveSpreadsheet = () => {
                                 className={`w-full bg-transparent px-2.5 py-2 text-xs focus:outline-none font-medium ${
                                   col.key === 'teamId' ? 'text-cyan-300 font-bold' :
                                   col.key === 'role' && cellVal === 'Leader' ? 'text-amber-400 font-bold' :
-                                  col.key === 'gender' && cellVal === 'Female' ? 'text-pink-300' :
+                                  col.key === 'gender' && (cellVal === 'F' || cellVal === 'Female') ? 'text-pink-300 font-bold' :
+                                  col.key === 'gender' && (cellVal === 'M' || cellVal === 'Male') ? 'text-orange-400 font-bold' :
                                   'text-slate-200'
                                 }`}
                               />

@@ -1,102 +1,100 @@
 import React from 'react';
-import { FileSpreadsheet, Download, ExternalLink, CheckCircle2, Eye, Sparkles } from 'lucide-react';
+import { Download, ExternalLink, Sparkles, CheckCircle2, Presentation } from 'lucide-react';
 
 const PptTemplate = () => {
-  // Official SIH Sample Presentation Links from Google Docs / Google Drive
-  const googleSlidesViewUrl = "https://docs.google.com/presentation/d/1X9N2W7xP-sih-sample-template/embed?start=false&loop=false&delayms=3000";
-  const googleDriveSampleUrl = "https://docs.google.com/presentation/d/1X9N2W7xP-sih-sample-template/edit?usp=sharing";
-  const directDownloadUrl = "https://sih.gov.in/pdf/Idea-Presentation-Format-SIH2024.pdf";
+  const pptDownloadUrl = "/SIH2026-IDEA-Presentation-Format.pptx";
+  const googleDriveSampleUrl = "https://docs.google.com/presentation/d/1Bv5uDwTC8kJJMgljx0dtSGhXE69v6j30/edit?usp=sharing&ouid=111454085469850450471&rtpof=true&sd=true";
 
   return (
     <div className="min-h-screen bg-slate-900 text-white py-10 font-sans">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Main Card Header */}
+        {/* Main Header Banner */}
         <div className="bg-slate-950 border border-slate-800 p-6 sm:p-8 rounded-2xl shadow-2xl mb-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
             <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-amber-500/20 text-amber-400 rounded-2xl flex items-center justify-center border border-amber-500/30">
-                <FileSpreadsheet className="w-6 h-6" />
+              <div className="w-14 h-14 bg-amber-500/20 text-amber-400 rounded-2xl flex items-center justify-center border border-amber-500/30 shrink-0">
+                <Presentation className="w-7 h-7" />
               </div>
               <div>
-                <h1 className="text-2xl sm:text-3xl font-extrabold text-white">SIH 2026 Sample Presentation Template</h1>
-                <p className="text-slate-400 text-xs mt-1">Official Smart India Hackathon Google Presentation format & sample slides</p>
+                <h1 className="text-2xl sm:text-3xl font-extrabold text-white">SIH 2026 Idea Presentation Template</h1>
+                <p className="text-slate-400 text-xs mt-1">
+                  Official Smart India Hackathon Idea Presentation Format provided by <strong>Coders Club & CIE</strong>
+                </p>
               </div>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
-              <a
-                href={googleDriveSampleUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold px-5 py-3 rounded-xl text-xs shadow-lg shadow-blue-500/20"
-              >
-                <ExternalLink className="w-4 h-4" />
-                <span>Open in Google Slides</span>
-              </a>
-
-              <a
-                href={directDownloadUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold px-5 py-3 rounded-xl text-xs"
-              >
-                <Download className="w-4 h-4 text-amber-400" />
-                <span>Download Sample PPT (PDF/PPTX)</span>
-              </a>
             </div>
           </div>
 
-          {/* Slide Structure Requirements Grid */}
-          <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
-            <h3 className="font-bold text-white text-sm mb-3 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-cyan-400" />
-              Mandatory Slide Structure (Smart India Hackathon Guidelines)
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-slate-300">
-              <div className="flex items-start space-x-2 bg-slate-950 p-3 rounded-xl border border-slate-800/80">
-                <CheckCircle2 className="w-4 h-4 text-cyan-400 flex-shrink-0 mt-0.5" />
-                <span><strong>Slide 1: Team & PS Details</strong> — Team Name, Problem Statement ID, Team Leader & 6 Members</span>
-              </div>
-              <div className="flex items-start space-x-2 bg-slate-950 p-3 rounded-xl border border-slate-800/80">
-                <CheckCircle2 className="w-4 h-4 text-cyan-400 flex-shrink-0 mt-0.5" />
-                <span><strong>Slide 2: Proposed Solution</strong> — Technical Architecture, Key Tech Stack & Innovation</span>
-              </div>
-              <div className="flex items-start space-x-2 bg-slate-950 p-3 rounded-xl border border-slate-800/80">
-                <CheckCircle2 className="w-4 h-4 text-cyan-400 flex-shrink-0 mt-0.5" />
-                <span><strong>Slide 3: Technical Feasibility</strong> — Workflow Diagram, Database Design & Hardware/Software Setup</span>
-              </div>
-              <div className="flex items-start space-x-2 bg-slate-950 p-3 rounded-xl border border-slate-800/80">
-                <CheckCircle2 className="w-4 h-4 text-cyan-400 flex-shrink-0 mt-0.5" />
-                <span><strong>Slide 4: Impact & Commercialization</strong> — Novelty, Business Model & Scalability for CIE Evaluation</span>
-              </div>
+          {/* Quick Guidance Box */}
+          <div className="bg-slate-900/90 border border-slate-800 p-4 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-slate-300">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
+              <span>
+                <strong>Official Template:</strong> Includes all mandatory sections required by the Ministry of Education & SIH 2026 evaluation jury.
+              </span>
+            </div>
+            <div className="flex items-center gap-2 text-cyan-400 font-semibold shrink-0">
+              <CheckCircle2 className="w-4 h-4" />
+              <span>Standard 16:9 Widescreen</span>
             </div>
           </div>
         </div>
 
-        {/* EMBEDDED GOOGLE SLIDES SAMPLE VIEWER */}
-        <div className="bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl p-4 sm:p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold text-white text-sm flex items-center gap-2">
-              <Eye className="w-4 h-4 text-amber-400" />
-              Live Interactive SIH Sample Presentation Preview (Google Slides)
-            </h3>
-            <span className="text-xs text-slate-400 hidden sm:inline">Use arrows to view slides</span>
+        {/* LIVE INTERACTIVE PREVIEW CARD - SHOWING ACTUAL PPT */}
+        <div className="bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl p-4 sm:p-7 mb-8">
+          
+          {/* Header Controls */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-800">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-amber-400 font-bold text-xs uppercase tracking-wider">Live Interactive Preview</span>
+                <span className="bg-emerald-500/20 text-emerald-300 text-[10px] px-2.5 py-0.5 rounded-full font-bold border border-emerald-500/30">
+                  Official Presentation
+                </span>
+              </div>
+              <h2 className="text-lg sm:text-xl font-extrabold text-white mt-1">
+                SIH 2026 Idea Presentation Format (.PPTX)
+              </h2>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2.5">
+              <a
+                href={googleDriveSampleUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center space-x-1.5 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 font-bold px-3.5 py-2 rounded-xl text-xs transition-colors"
+              >
+                <ExternalLink className="w-4 h-4 text-cyan-400" />
+                <span>Open in Google Slides</span>
+              </a>
+              <a
+                href={pptDownloadUrl}
+                download="SIH2026-IDEA-Presentation-Format.pptx"
+                className="inline-flex items-center space-x-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-xl text-xs shadow-md transition-colors"
+              >
+                <Download className="w-4 h-4" />
+                <span>Download .PPTX</span>
+              </a>
+            </div>
           </div>
 
-          <div className="relative w-full aspect-video bg-slate-900 rounded-xl overflow-hidden border border-slate-800 shadow-inner">
+          {/* Actual PPT Embedded Frame */}
+          <div className="relative w-full aspect-video sm:aspect-[16/9] min-h-[460px] sm:min-h-[540px] bg-slate-900 rounded-xl overflow-hidden border border-slate-800 shadow-inner">
             <iframe
-              src={googleSlidesViewUrl}
-              title="Official SIH Sample Presentation Slides Preview"
+              src="https://drive.google.com/file/d/1Bv5uDwTC8kJJMgljx0dtSGhXE69v6j30/preview"
+              title="Official SIH 2026 Presentation Format PPT"
               className="w-full h-full border-0"
               allowFullScreen={true}
               loading="lazy"
             ></iframe>
           </div>
-          <p className="text-[11px] text-slate-500 mt-3 text-center">
-            Previewing official Smart India Hackathon presentation template. Click "Open in Google Slides" above to make a editable copy.
+
+          <p className="text-xs text-slate-400 mt-4 text-center">
+            Interactive preview of the actual SIH presentation file. You can scroll through slides, zoom, or click above to edit and download.
           </p>
         </div>
+
+
 
       </div>
     </div>

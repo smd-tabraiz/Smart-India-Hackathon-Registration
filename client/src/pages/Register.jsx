@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useRef, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import API from '../services/api';
@@ -8,16 +8,16 @@ import {
 } from 'lucide-react';
 
 const YEARS = ['1st Year', '2nd Year', '3rd Year', '4th Year'];
-const BRANCHES = ['CSE', 'IT', 'AI & DS', 'AI & ML', 'ECE', 'EEE', 'Mechanical', 'Civil', 'Other'];
-const GENDERS = ['Male', 'Female', 'Other'];
-const CATEGORIES = ['GEN', 'EWS', 'OC', 'BC'];
+const BRANCHES = ['CSE', 'CSE - (AI & ML)', 'CSE - (DS)', 'CSBS', 'ECE', 'EEE', 'MECH', 'CIVIL'];
+const GENDERS = ['M', 'F'];
+const CATEGORIES = ['GEN', 'EWS', 'OC', 'BC', 'SC', 'ST'];
 
 const initialMemberState = (idx) => ({
   name: '',
   rollNumber: '',
   year: '3rd Year',
   branch: 'CSE',
-  gender: idx === 0 ? 'Female' : 'Male', // Default to 1 female member for user convenience
+  gender: idx === 0 ? 'F' : 'M', // Default to 1 female member for user convenience
   casteCategory: 'GEN',
   isLeader: idx === 0, // First member is default leader
 });
@@ -27,6 +27,18 @@ const Register = () => {
   const navigate = useNavigate();
 
   const [step, setStep] = useState(1);
+  const topErrorRef = useRef(null);
+  const bottomErrorRef = useRef(null);
+
+  const scrollToError = () => {
+    setTimeout(() => {
+      if (bottomErrorRef.current) {
+        bottomErrorRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else if (topErrorRef.current) {
+        topErrorRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 80);
+  };
 
   // Step 1 State
   const [teamName, setTeamName] = useState('');
@@ -45,7 +57,7 @@ const Register = () => {
   const [successData, setSuccessData] = useState(null);
 
   // Female count live calculation
-  const femaleCount = members.filter((m) => m.gender === 'Female').length;
+  const femaleCount = members.filter((m) => m.gender === 'F' || m.gender === 'Female').length;
 
   const handleMemberChange = (index, field, value) => {
     const updated = [...members];
@@ -108,9 +120,12 @@ const Register = () => {
     const err = validateStep1();
     if (err) {
       setErrorMsg(err);
+      scrollToError();
       return;
     }
+    setErrorMsg('');
     setStep(2);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleNextStep2 = (e) => {
@@ -118,9 +133,12 @@ const Register = () => {
     const err = validateStep2();
     if (err) {
       setErrorMsg(err);
+      scrollToError();
       return;
     }
+    setErrorMsg('');
     setStep(3);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleSubmitRegistration = async () => {
@@ -144,10 +162,12 @@ const Register = () => {
         res.data.whatsappGroupLink
       );
       setStep(4);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
       setErrorMsg(
         err.response?.data?.message || 'Registration failed. Please check backend connection and try again.'
       );
+      scrollToError();
     } finally {
       setLoading(false);
     }
@@ -175,9 +195,12 @@ const Register = () => {
 
         {/* Global Error Banner */}
         {errorMsg && (
-          <div className="mb-6 bg-rose-500/10 border border-rose-500/40 text-rose-300 p-4 rounded-xl flex items-start gap-3 text-sm">
+          <div ref={topErrorRef} className="mb-6 bg-rose-500/15 border-2 border-rose-500/50 text-rose-300 p-4 rounded-xl flex items-start gap-3 text-sm shadow-xl animate-pulse">
             <AlertCircle className="w-5 h-5 text-rose-400 flex-shrink-0 mt-0.5" />
-            <span>{errorMsg}</span>
+            <div>
+              <strong className="block text-rose-200 font-bold mb-0.5">Please correct the following:</strong>
+              <span>{errorMsg}</span>
+            </div>
           </div>
         )}
 
@@ -415,10 +438,21 @@ const Register = () => {
                 </div>
               ))}
 
+              {/* Error Alert right above Review button */}
+              {errorMsg && (
+                <div ref={bottomErrorRef} className="mt-4 bg-rose-500/15 border-2 border-rose-500/60 text-rose-300 p-4 rounded-xl flex items-start gap-3 text-sm shadow-xl animate-pulse">
+                  <AlertCircle className="w-5 h-5 text-rose-400 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <strong className="block text-rose-200 font-bold mb-0.5">Please fix this issue before proceeding to Review:</strong>
+                    <span>{errorMsg}</span>
+                  </div>
+                </div>
+              )}
+
               <div className="pt-4 flex items-center justify-between border-t border-slate-800">
                 <button
                   type="button"
-                  onClick={() => setStep(1)}
+                  onClick={() => { setStep(1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                   className="bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold px-5 py-2.5 rounded-xl flex items-center space-x-2"
                 >
                   <ArrowLeft className="w-4 h-4" />
@@ -483,10 +517,12 @@ const Register = () => {
                       <td className="p-3 text-slate-300">{m.year}</td>
                       <td className="p-3 text-slate-300">{m.branch}</td>
                       <td className="p-3">
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                          m.gender === 'Female' ? 'bg-pink-500/20 text-pink-300' : 'bg-slate-800 text-slate-300'
+                        <span className={`px-2.5 py-0.5 rounded text-[10px] font-bold ${
+                          (m.gender === 'F' || m.gender === 'Female') 
+                            ? 'bg-pink-500/20 text-pink-300 border border-pink-500/30' 
+                            : 'bg-orange-500/20 text-orange-300 border border-orange-500/30'
                         }`}>
-                          {m.gender}
+                          {m.gender === 'Female' ? 'F' : (m.gender === 'Male' ? 'M' : m.gender)}
                         </span>
                       </td>
                       <td className="p-3 text-slate-300">{m.casteCategory}</td>
@@ -505,10 +541,21 @@ const Register = () => {
               </table>
             </div>
 
+            {/* Error banner in Step 3 */}
+            {errorMsg && (
+              <div ref={bottomErrorRef} className="my-4 bg-rose-500/15 border-2 border-rose-500/60 text-rose-300 p-4 rounded-xl flex items-start gap-3 text-sm shadow-xl">
+                <AlertCircle className="w-5 h-5 text-rose-400 flex-shrink-0 mt-0.5" />
+                <div>
+                  <strong className="block text-rose-200 font-bold mb-0.5">Registration Error:</strong>
+                  <span>{errorMsg}</span>
+                </div>
+              </div>
+            )}
+
             <div className="flex items-center justify-between pt-4 border-t border-slate-800">
               <button
                 type="button"
-                onClick={() => setStep(2)}
+                onClick={() => { setStep(2); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                 className="bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold px-5 py-2.5 rounded-xl flex items-center space-x-2"
               >
                 <ArrowLeft className="w-4 h-4" />
@@ -551,6 +598,34 @@ const Register = () => {
                 {successData.teamId}
               </div>
               <p className="text-[11px] text-slate-400">Save this Team ID for all future references.</p>
+            </div>
+
+            {/* Email Notification Details & Online Viewer */}
+            <div className="my-6 p-4 bg-slate-900 border border-slate-700/80 rounded-2xl max-w-md mx-auto text-left">
+              <div className="flex items-start space-x-3">
+                <div className="p-2 bg-blue-500/20 text-blue-400 rounded-lg shrink-0">
+                  <Mail className="w-5 h-5" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-xs font-bold text-slate-200">Confirmation Email</p>
+                  <p className="text-[12px] text-slate-400 mt-0.5">
+                    Notification dispatched to Team Leader: <strong className="text-cyan-400">{successData.user?.email || email}</strong>
+                  </p>
+                  {successData.emailPreviewUrl && (
+                    <div className="mt-3">
+                      <a
+                        href={successData.emailPreviewUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center space-x-2 text-xs font-bold text-cyan-300 hover:text-cyan-200 bg-cyan-950/70 border border-cyan-500/40 px-3.5 py-2 rounded-xl transition-all shadow-sm"
+                      >
+                        <span>📨 Open Official Email Confirmation Slip</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
 
             {/* Exclusive WhatsApp Link Button */}

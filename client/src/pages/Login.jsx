@@ -18,8 +18,12 @@ const Login = () => {
     setLoading(true);
 
     try {
-      await loginLeader(email, password);
-      navigate('/dashboard');
+      const res = await loginLeader(email, password);
+      if (res?.role === 'admin') {
+        navigate('/admin/dashboard');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed. Invalid credentials.');
     } finally {

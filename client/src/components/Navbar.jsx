@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { Code2, Lightbulb, UserCheck, LogOut, Menu, X, LayoutDashboard, FileText, ChevronDown, FileSpreadsheet } from 'lucide-react';
+import { Code2, Lightbulb, LogOut, Menu, X, LayoutDashboard, FileText, ChevronDown, FileSpreadsheet } from 'lucide-react';
 
 const Navbar = () => {
   const { user, team, logout } = useContext(AuthContext);
@@ -19,26 +19,31 @@ const Navbar = () => {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <header className="sticky top-0 z-50 bg-slate-900 border-b border-slate-800 text-white shadow-lg">
+    <header className="sticky top-0 z-50 bg-slate-900 border-b border-slate-800 text-white shadow-lg print:hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           
-          {/* Brand Logos Placeholder */}
+          {/* Official Brand Logos */}
           <Link to="/" className="flex items-center space-x-3 group">
-            <div className="flex items-center space-x-2 bg-slate-800/80 p-2 rounded-xl border border-slate-700/60 group-hover:border-blue-500 transition-colors">
-              <div className="bg-blue-600 text-white p-1.5 rounded-lg flex items-center justify-center">
-                <Code2 className="w-5 h-5" />
-              </div>
-              <div className="bg-amber-500 text-white p-1.5 rounded-lg flex items-center justify-center">
-                <Lightbulb className="w-5 h-5" />
-              </div>
+            <div className="flex items-center space-x-1.5 bg-slate-800/90 p-1.5 rounded-xl border border-slate-700/60 group-hover:border-cyan-500 transition-colors">
+              <img
+                src="/cc_logo.jpg"
+                alt="Coders' Club"
+                className="w-8 h-8 rounded-lg object-contain bg-white p-0.5"
+              />
+              <span className="text-slate-500 text-xs font-bold">×</span>
+              <img
+                src="/cie_logo.jpg"
+                alt="Centre for Entrepreneurship (CIE)"
+                className="w-8 h-8 rounded-lg object-contain bg-white p-0.5"
+              />
             </div>
             <div>
               <div className="flex items-center space-x-1.5 font-bold text-lg tracking-tight">
                 <span className="text-white">SIH 2026</span>
                 <span className="text-xs bg-cyan-500/20 text-cyan-400 px-2 py-0.5 rounded-full border border-cyan-500/30">Portal</span>
               </div>
-              <p className="text-xs text-slate-400 font-medium">Coders Club × CIE</p>
+              <p className="text-[11px] text-slate-400 font-medium">Coders Club × CIE</p>
             </div>
           </Link>
 
@@ -77,15 +82,6 @@ const Navbar = () => {
               PPT Template
             </Link>
             <Link
-              to="/spreadsheet"
-              className={`px-3.5 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 ${
-                isActive('/spreadsheet') ? 'bg-emerald-600/20 text-emerald-400 border border-emerald-500/30' : 'text-emerald-400 hover:bg-slate-800/60'
-              }`}
-            >
-              <FileSpreadsheet className="w-4 h-4" />
-              <span>Live Excel Sheet</span>
-            </Link>
-            <Link
               to="/faq"
               className={`px-3.5 py-2 rounded-lg text-sm font-medium transition-colors ${
                 isActive('/faq') ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
@@ -119,33 +115,35 @@ const Navbar = () => {
                 {dropdownOpen && (
                   <div className="absolute right-0 mt-2 w-56 bg-slate-900 rounded-xl shadow-2xl border border-slate-700 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
                     {user.role === 'admin' ? (
-                      <Link
-                        to="/admin/dashboard"
-                        onClick={() => setDropdownOpen(false)}
-                        className="flex items-center px-4 py-2.5 text-sm text-slate-200 hover:bg-slate-800 hover:text-white"
-                      >
-                        <LayoutDashboard className="w-4 h-4 mr-2.5 text-blue-400" />
-                        Admin Dashboard
-                      </Link>
-                    ) : (
                       <>
                         <Link
-                          to="/dashboard"
+                          to="/admin/dashboard"
                           onClick={() => setDropdownOpen(false)}
                           className="flex items-center px-4 py-2.5 text-sm text-slate-200 hover:bg-slate-800 hover:text-white"
                         >
                           <LayoutDashboard className="w-4 h-4 mr-2.5 text-blue-400" />
-                          Dashboard
+                          Admin Dashboard
                         </Link>
-                        <Link
-                          to="/dashboard"
+                        <a
+                          href="https://docs.google.com/spreadsheets/d/1LHSq7l3zEeAtCKd8ZfqyDA7RJFcyMR541cljhQClUGY/edit?usp=sharing"
+                          target="_blank"
+                          rel="noopener noreferrer"
                           onClick={() => setDropdownOpen(false)}
                           className="flex items-center px-4 py-2.5 text-sm text-slate-200 hover:bg-slate-800 hover:text-white"
                         >
-                          <UserCheck className="w-4 h-4 mr-2.5 text-cyan-400" />
-                          Team Details ({team?.teamId || 'View'})
-                        </Link>
+                          <FileSpreadsheet className="w-4 h-4 mr-2.5 text-emerald-400" />
+                          Live Excel Sheet
+                        </a>
                       </>
+                    ) : (
+                      <Link
+                        to="/dashboard"
+                        onClick={() => setDropdownOpen(false)}
+                        className="flex items-center px-4 py-2.5 text-sm text-slate-200 hover:bg-slate-800 hover:text-white"
+                      >
+                        <LayoutDashboard className="w-4 h-4 mr-2.5 text-blue-400" />
+                        Dashboard
+                      </Link>
                     )}
                     <div className="border-t border-slate-800 my-1"></div>
                     <button
@@ -262,13 +260,6 @@ const Navbar = () => {
                   className="block w-full text-center py-2.5 rounded-lg border border-slate-700 text-slate-200 font-semibold"
                 >
                   Leader Login
-                </Link>
-                <Link
-                  to="/admin/login"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="block w-full text-center py-2.5 rounded-lg text-slate-400 hover:text-white text-sm"
-                >
-                  Admin Portal Login
                 </Link>
               </>
             )}

@@ -1,5 +1,9 @@
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 const User = require('../models/User');
+const localStore = require('../config/localStore');
+
+const isDbConnected = () => mongoose.connection.readyState === 1;
 
 const protect = async (req, res, next) => {
   let token;
@@ -8,7 +12,24 @@ const protect = async (req, res, next) => {
     try {
       token = req.headers.authorization.split(' ')[1];
       const decoded = jwt.verify(token, process.env.JWT_SECRET || 'super_secret_jwt_key_sih_2026_cc_cie');
-      req.user = await User.findById(decoded.id).select('-password');
+
+      if (isDbConnected()) {
+        try {
+          req.user = await User.findById(decoded.id).select('-password');
+        } catch (err) {
+          req.user = null;
+        }
+      }
+
+      if (!req.user) {
+        const localUser = localStore.findUserById(decoded.id) || localStore.findUserByEmail(decoded.email);
+        if (localUser) {
+          req.user = { _id: localUser._id, email: localUser.email, role: localUser.role, teamId: localUser.teamId };
+        } else if (decoded.id && decoded.email) {
+          req.user = { _id: decoded.id, email: decoded.email, role: decoded.role || 'leader' };
+        }
+      }
+
       if (!req.user) {
         return res.status(401).json({ message: 'User not found' });
       }
