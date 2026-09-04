@@ -36,7 +36,7 @@ const LiveSpreadsheet = () => {
   const [pushResult, setPushResult] = useState(null);
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'mobile-cards'
 
-  const GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/1LHSq7l3zEeAtCKd8ZfqyDA7RJFcyMR541cljhQClUGY/edit?usp=sharing';
+  const GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/1vdoZzJwKesxhg62k0j876eg0H-kUSDJKd-biVDo2dZ8/edit?usp=sharing';
   const LIVE_CSV_URL = `${window.location.origin}/api/spreadsheet/live-csv`;
   const IMPORTDATA_FORMULA = `=IMPORTDATA("${LIVE_CSV_URL}")`;
 

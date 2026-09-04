@@ -125,7 +125,7 @@ const Navbar = () => {
                           Admin Dashboard
                         </Link>
                         <a
-                          href="https://docs.google.com/spreadsheets/d/1LHSq7l3zEeAtCKd8ZfqyDA7RJFcyMR541cljhQClUGY/edit?usp=sharing"
+                          href="https://docs.google.com/spreadsheets/d/1vdoZzJwKesxhg62k0j876eg0H-kUSDJKd-biVDo2dZ8/edit?usp=sharing"
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={() => setDropdownOpen(false)}

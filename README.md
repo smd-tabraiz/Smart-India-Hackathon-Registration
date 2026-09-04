@@ -46,7 +46,7 @@ Official internal nomination and team registration platform for the **Smart Indi
    - Live editable roster modal, team status updates, and team deletion/disqualification with cascading leader cleanup.
    - Real-time nomination statistics (total teams, total students, female participants, today's registrations).
 5. **Google Sheets Integration**:
-   - One-click navigation to the official Google Sheet: [SIH_registrations](https://docs.google.com/spreadsheets/d/1LHSq7l3zEeAtCKd8ZfqyDA7RJFcyMR541cljhQClUGY/edit?usp=sharing).
+   - One-click navigation to the official Google Sheet: [SIH_registrations](https://docs.google.com/spreadsheets/d/1vdoZzJwKesxhg62k0j876eg0H-kUSDJKd-biVDo2dZ8/edit?usp=sharing).
    - In-app Live Spreadsheet view with 1-click clipboard export formatted for Google Sheets.
 6. **Dual Persistence & Offline Resilience**:
    - Operates with MongoDB Atlas.
@@ -154,7 +154,7 @@ Scroll down to the **"Environment Variables"** section in Render, click **"Add E
 | `SENDGRID_FROM_NAME` | `Coders Club & CIE SIH Portal` | Sender display name |
 | `WHATSAPP_GROUP_LINK` | `https://chat.whatsapp.com/...` | Group link shown on leader dashboard |
 | `PPT_TEMPLATE_URL` | `https://docs.google.com/presentation/...` | Official SIH PPT format |
-| `LIVE_SPREADSHEET_URL`| `https://docs.google.com/spreadsheets/d/1LHSq7l3zEeAtCKd8ZfqyDA7RJFcyMR541cljhQClUGY/edit?usp=sharing` | Official Google Sheets sync sheet |
+| `LIVE_SPREADSHEET_URL`| `https://docs.google.com/spreadsheets/d/1vdoZzJwKesxhg62k0j876eg0H-kUSDJKd-biVDo2dZ8/edit?usp=sharing` | Official Google Sheets sync sheet |
 | `GOOGLE_SHEET_WEBHOOK_URL` | *(Optional)* `https://script.google.com/macros/s/.../exec` | Apps Script webhook for real-time row append |
 
 ---
@@ -164,7 +164,7 @@ Scroll down to the **"Environment Variables"** section in Render, click **"Add E
 Your Google Sheet can be automatically populated with registered teams using any of these 3 methods:
 
 #### Method 1: Zero-Setup Live Auto-Fetch Formula (Instant & Recommended)
-1. Open your [Official Google Sheet](https://docs.google.com/spreadsheets/d/1LHSq7l3zEeAtCKd8ZfqyDA7RJFcyMR541cljhQClUGY/edit?usp=sharing).
+1. Open your [Official Google Sheet](https://docs.google.com/spreadsheets/d/1vdoZzJwKesxhg62k0j876eg0H-kUSDJKd-biVDo2dZ8/edit?usp=sharing).
 2. Click on cell **A1**.
 3. Type or paste this formula:
    ```excel
@@ -280,7 +280,7 @@ SENDGRID_FROM_EMAIL=codersclub@gprec.ac.in
 SENDGRID_FROM_NAME=Coders Club & CIE SIH Portal
 WHATSAPP_GROUP_LINK=https://chat.whatsapp.com/your_link
 PPT_TEMPLATE_URL=https://docs.google.com/presentation/d/...
-LIVE_SPREADSHEET_URL=https://docs.google.com/spreadsheets/d/1LHSq7l3zEeAtCKd8ZfqyDA7RJFcyMR541cljhQClUGY/edit?usp=sharing
+LIVE_SPREADSHEET_URL=https://docs.google.com/spreadsheets/d/1vdoZzJwKesxhg62k0j876eg0H-kUSDJKd-biVDo2dZ8/edit?usp=sharing
 ```
 
 ---
