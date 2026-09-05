@@ -83,10 +83,10 @@ const Footer = () => {
                   <span className="text-slate-400 block text-[11px]">Phone No:</span>
                   <div className="flex flex-col space-y-1">
                     <a href="tel:7416420488" className="text-slate-200 hover:text-cyan-400 transition-colors font-medium">
-                      +91 74164 20488
+                      Vidya Sagar - +91 74164 20488
                     </a>
                     <a href="tel:8106471349" className="text-slate-200 hover:text-cyan-400 transition-colors font-medium">
-                      +91 81064 71349
+                      Asma - +91 81064 71349
                     </a>
                   </div>
                 </div>
@@ -118,7 +118,7 @@ const Footer = () => {
               </div>
               <div className="text-[11px] text-slate-300 font-medium flex items-center justify-center sm:justify-start gap-1 sm:pl-6 mt-0.5">
                 <span className="text-cyan-400">•</span>
-                <span>Student Co-ordinator of CodersClub</span>
+                <span>Student Co-ordinator of Coders Club</span>
               </div>
             </div>
           </div>
