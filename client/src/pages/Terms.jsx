@@ -35,7 +35,7 @@ const Terms = () => {
               3. Attendance & Evaluation Presentation
             </h3>
             <p className="text-xs leading-relaxed text-slate-400">
-              All 6 team members must be present during the internal pitch evaluations conducted by the Centre for Entrepreneurship (CIE). Presentations must follow the official PPT template format.
+              All 6 team members must be present during the internal pitch evaluations conducted by the Coders' Club and Centre for Entrepreneurship (CIE). Presentations must follow the official PPT template format.
             </p>
           </div>
         </div>
