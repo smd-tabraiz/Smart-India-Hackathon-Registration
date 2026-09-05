@@ -18,6 +18,7 @@ const formatTeamRows = (team) => {
     team.leaderEmail || '',
     m.isLeader ? 'Leader' : 'Member',
     m.name || '',
+    m.email || (m.isLeader ? team.leaderEmail : '') || '',
     (m.rollNumber || '').toUpperCase(),
     m.year || '',
     m.branch || '',

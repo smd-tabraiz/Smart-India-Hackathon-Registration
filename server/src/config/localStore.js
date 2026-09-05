@@ -19,7 +19,7 @@ let store = {
 // Load from disk if exists
 if (fs.existsSync(DATA_FILE)) {
   try {
-    const raw = fs.readFileSync(DATA_FILE, 'utf8');
+    const raw = fs.readFileSync(DATA_FILE, 'utf8').replace(/^\uFEFF/, '');
     store = JSON.parse(raw);
     if (!Array.isArray(store.users)) store.users = [];
     if (!Array.isArray(store.teams)) store.teams = [];

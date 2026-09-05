@@ -17,10 +17,14 @@ const validateMembersArray = async (members, currentTeamId = null) => {
   }
 
   // 1. Check all required fields
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   for (let i = 0; i < members.length; i++) {
     const m = members[i];
-    if (!m.name || !m.rollNumber || !m.year || !m.branch || !m.gender || !m.casteCategory) {
-      return `Incomplete details for member #${i + 1} (${m.name || 'Unnamed'}). All fields are mandatory.`;
+    if (!m.name || !m.email || !m.rollNumber || !m.year || !m.branch || !m.gender || !m.casteCategory) {
+      return `Incomplete details for member #${i + 1} (${m.name || 'Unnamed'}). All fields including Email ID are mandatory.`;
+    }
+    if (!emailRegex.test(String(m.email).trim())) {
+      return `Invalid email format for member #${i + 1} (${m.name || 'Unnamed'}): "${m.email}".`;
     }
   }
 
@@ -41,6 +45,13 @@ const validateMembersArray = async (members, currentTeamId = null) => {
   const uniqueRolls = new Set(rollNumbers);
   if (uniqueRolls.size !== members.length) {
     return 'Duplicate roll numbers found within the team. Each member must have a unique Roll Number.';
+  }
+
+  // 5. Duplicate emails within current team
+  const memberEmails = members.map((m) => String(m.email).trim().toLowerCase());
+  const uniqueEmails = new Set(memberEmails);
+  if (uniqueEmails.size !== members.length) {
+    return 'Duplicate email IDs found within the team. Each member must have a unique Email ID.';
   }
 
   // 5. Duplicate roll numbers across registered teams
@@ -139,6 +150,7 @@ const registerTeam = async (req, res) => {
 
     const formattedMembers = members.map((m) => ({
       name: m.name.trim(),
+      email: (m.email || (m.isLeader ? formattedEmail : '')).trim().toLowerCase(),
       rollNumber: m.rollNumber.trim().toUpperCase(),
       year: m.year,
       branch: m.branch,

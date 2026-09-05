@@ -423,6 +423,7 @@ const AdminDashboard = () => {
                     <tr className="bg-slate-900 text-slate-300">
                       <th className="p-2">#</th>
                       <th className="p-2">Name</th>
+                      <th className="p-2">Email</th>
                       <th className="p-2">Roll No</th>
                       <th className="p-2">Year</th>
                       <th className="p-2">Branch</th>
@@ -435,6 +436,7 @@ const AdminDashboard = () => {
                       <tr key={idx}>
                         <td className="p-2 text-slate-500 font-bold">{idx + 1}</td>
                         <td className="p-2 font-bold text-white">{m.name} {m.isLeader && '(Leader)'}</td>
+                        <td className="p-2 text-slate-300 font-mono text-[11px]">{m.email || (m.isLeader ? selectedTeam.leaderEmail : '-')}</td>
                         <td className="p-2 text-cyan-300 font-mono">{m.rollNumber}</td>
                         <td className="p-2">{m.year}</td>
                         <td className="p-2">{m.branch}</td>

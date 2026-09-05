@@ -119,6 +119,7 @@ const Dashboard = () => {
                 <tr className="bg-slate-900 text-slate-300 print:bg-slate-100 print:text-black border-b border-slate-800 print:border-b print:border-slate-300">
                   <th className="p-3 print:p-2.5 print:border print:border-slate-300 print:font-bold">#</th>
                   <th className="p-3 print:p-2.5 print:border print:border-slate-300 print:font-bold">Name</th>
+                  <th className="p-3 print:p-2.5 print:border print:border-slate-300 print:font-bold">Email</th>
                   <th className="p-3 print:p-2.5 print:border print:border-slate-300 print:font-bold">Roll Number</th>
                   <th className="p-3 print:p-2.5 print:border print:border-slate-300 print:font-bold">Year</th>
                   <th className="p-3 print:p-2.5 print:border print:border-slate-300 print:font-bold">Branch</th>
@@ -132,6 +133,7 @@ const Dashboard = () => {
                   <tr key={idx} className={m.isLeader ? 'bg-blue-950/30 print:bg-blue-50/50' : ''}>
                     <td className="p-3 print:p-2 print:border print:border-slate-300 font-bold text-slate-400 print:text-slate-800">{idx + 1}</td>
                     <td className="p-3 print:p-2 print:border print:border-slate-300 font-bold text-white print:text-slate-900">{m.name}</td>
+                    <td className="p-3 print:p-2 print:border print:border-slate-300 text-slate-300 print:text-slate-800 font-mono text-[11px]">{m.email || (m.isLeader ? team.leaderEmail : '-')}</td>
                     <td className="p-3 print:p-2 print:border print:border-slate-300 text-cyan-300 print:text-black font-mono font-bold">{m.rollNumber}</td>
                     <td className="p-3 print:p-2 print:border print:border-slate-300 text-slate-300 print:text-slate-800">{m.year}</td>
                     <td className="p-3 print:p-2 print:border print:border-slate-300 text-slate-300 print:text-slate-800">{m.branch}</td>

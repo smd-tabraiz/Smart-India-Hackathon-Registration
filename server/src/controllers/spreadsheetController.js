@@ -41,6 +41,7 @@ const getSpreadsheetData = async (req, res) => {
             gender: m.gender,
             casteCategory: m.casteCategory,
             role: m.isLeader ? 'Leader' : 'Member',
+            studentEmail: m.email || (m.isLeader ? t.leaderEmail : ''),
             registrationDate: t.createdAt
               ? new Date(t.createdAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })
               : new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
@@ -61,6 +62,7 @@ const getSpreadsheetData = async (req, res) => {
         problemStatementId: '',
         leaderEmail: '',
         studentName: '',
+        studentEmail: '',
         rollNumber: '',
         year: '',
         branch: '',
@@ -83,6 +85,7 @@ const getSpreadsheetData = async (req, res) => {
         { key: 'leaderEmail', label: 'Leader Email' },
         { key: 'role', label: 'Role' },
         { key: 'studentName', label: 'Student Name' },
+        { key: 'studentEmail', label: 'Member Email' },
         { key: 'rollNumber', label: 'Roll Number' },
         { key: 'year', label: 'Year' },
         { key: 'branch', label: 'Branch' },
@@ -129,6 +132,7 @@ const syncSpreadsheetData = async (req, res) => {
         }
         teamGroups[tid].members.push({
           name: r.studentName || 'Student',
+          email: r.studentEmail || (r.role === 'Leader' ? group.leaderEmail : '') || '',
           rollNumber: (r.rollNumber || '').toUpperCase(),
           year: r.year || '3rd Year',
           branch: r.branch || 'CSE',
@@ -189,6 +193,7 @@ const getLiveCsv = async (req, res) => {
       'Leader Email',
       'Member Role',
       'Student Name',
+      'Member Email',
       'Roll Number',
       'Year',
       'Branch',
