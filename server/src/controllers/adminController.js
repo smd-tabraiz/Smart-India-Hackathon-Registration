@@ -5,28 +5,42 @@ const localStore = require('../config/localStore');
 
 const isDbConnected = () => mongoose.connection.readyState === 1;
 
+// Helper to safely get all teams merged from MongoDB and localStore
+const getAllTeamsMerged = async () => {
+  let teams = [];
+  if (isDbConnected()) {
+    try {
+      teams = await Team.find().sort({ createdAt: -1 });
+    } catch (err) {
+      teams = [];
+    }
+  }
+  const localTeams = localStore.getTeams() || [];
+  if (!teams || teams.length === 0) {
+    return localTeams;
+  }
+  const dbTeamIds = new Set(teams.map((t) => String(t.teamId || t._id)));
+  localTeams.forEach((lt) => {
+    if (!dbTeamIds.has(String(lt.teamId || lt._id))) {
+      teams.push(lt);
+    }
+  });
+  return teams;
+};
+
 // @desc    Get admin statistics
 // @route   GET /api/admin/stats
 // @access  Private (Admin)
 const getAdminStats = async (req, res) => {
   try {
-    let teams = [];
-    if (isDbConnected()) {
-      try {
-        teams = await Team.find();
-      } catch (err) {
-        teams = localStore.getTeams();
-      }
-    } else {
-      teams = localStore.getTeams();
-    }
+    const teams = await getAllTeamsMerged();
 
     const totalTeams = teams.length;
     const totalStudents = totalTeams * 6;
 
     let femaleParticipants = 0;
     teams.forEach((t) => {
-      t.members.forEach((m) => {
+      (t.members || []).forEach((m) => {
         if (m.gender === 'Female' || m.gender === 'F') femaleParticipants++;
       });
     });
@@ -56,27 +70,19 @@ const getAdminTeams = async (req, res) => {
   try {
     const { search, problemStatementId, branch, year } = req.query;
 
-    let teams = [];
-    if (isDbConnected()) {
-      try {
-        teams = await Team.find().sort({ createdAt: -1 });
-      } catch (err) {
-        teams = localStore.getTeams();
-      }
-    } else {
-      teams = localStore.getTeams();
-    }
+    let teams = await getAllTeamsMerged();
 
     if (search) {
       const q = search.trim().toLowerCase();
       teams = teams.filter((t) => {
-        const matchesTeamId = t.teamId.toLowerCase().includes(q);
-        const matchesTeamName = t.teamName.toLowerCase().includes(q);
-        const matchesLeaderEmail = t.leaderEmail.toLowerCase().includes(q);
-        const matchesMember = t.members.some(
+        const matchesTeamId = (t.teamId || '').toLowerCase().includes(q);
+        const matchesTeamName = (t.teamName || '').toLowerCase().includes(q);
+        const matchesLeaderEmail = (t.leaderEmail || '').toLowerCase().includes(q);
+        const matchesMember = (t.members || []).some(
           (m) =>
-            m.name.toLowerCase().includes(q) ||
-            m.rollNumber.toLowerCase().includes(q)
+            (m.name || '').toLowerCase().includes(q) ||
+            (m.email || '').toLowerCase().includes(q) ||
+            (m.rollNumber || '').toLowerCase().includes(q)
         );
         return matchesTeamId || matchesTeamName || matchesLeaderEmail || matchesMember;
       });
@@ -84,19 +90,19 @@ const getAdminTeams = async (req, res) => {
 
     if (problemStatementId) {
       teams = teams.filter(
-        (t) => t.problemStatementId.toUpperCase() === problemStatementId.toUpperCase()
+        (t) => (t.problemStatementId || '').toUpperCase() === problemStatementId.toUpperCase()
       );
     }
 
     if (branch) {
       teams = teams.filter((t) =>
-        t.members.some((m) => m.branch.toUpperCase() === branch.toUpperCase())
+        (t.members || []).some((m) => (m.branch || '').toUpperCase() === branch.toUpperCase())
       );
     }
 
     if (year) {
       teams = teams.filter((t) =>
-        t.members.some((m) => m.year === year)
+        (t.members || []).some((m) => m.year === year)
       );
     }
 
@@ -242,16 +248,7 @@ const deleteAdminTeam = async (req, res) => {
 // @access  Private (Admin)
 const exportCsv = async (req, res) => {
   try {
-    let teams = [];
-    if (isDbConnected()) {
-      try {
-        teams = await Team.find().sort({ createdAt: -1 });
-      } catch (err) {
-        teams = localStore.getTeams();
-      }
-    } else {
-      teams = localStore.getTeams();
-    }
+    const teams = await getAllTeamsMerged();
 
     let csvRows = [];
     csvRows.push([
