@@ -100,7 +100,7 @@ const Home = () => {
               </div>
               <h3 className="text-lg font-bold text-white">Internal Evaluation</h3>
               <p className="text-xs text-slate-400 mt-2 leading-relaxed">
-                Expert mentoring and evaluation by Centre for Entrepreneurship (CIE) faculty and senior Coders Club mentors.
+                Expert mentoring and evaluation by Coders' Club & Centre for Entrepreneurship (CIE) faculty.
               </p>
             </div>
           </div>
