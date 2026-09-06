@@ -500,6 +500,7 @@ const AdminDashboard = () => {
                       <th className="p-3">#</th>
                       <th className="p-3">Student Name</th>
                       <th className="p-3">Email ID</th>
+                      <th className="p-3">Mobile Number</th>
                       <th className="p-3">Roll Number</th>
                       <th className="p-3">Branch</th>
                       <th className="p-3">Year</th>
@@ -525,6 +526,9 @@ const AdminDashboard = () => {
                         </td>
                         <td className="p-3 font-mono text-[11px] text-cyan-300 whitespace-nowrap">
                           {s.email || (s.isLeader ? s.leaderEmail : '-')}
+                        </td>
+                        <td className="p-3 font-mono text-[11px] text-emerald-400 whitespace-nowrap">
+                          {s.mobileNumber || (s.isLeader ? s.phone : '-')}
                         </td>
                         <td className="p-3 font-mono font-bold text-slate-200 whitespace-nowrap">
                           {s.rollNumber}
@@ -706,6 +710,7 @@ const AdminDashboard = () => {
                                           <th className="p-2.5">#</th>
                                           <th className="p-2.5">Student Name</th>
                                           <th className="p-2.5">Email ID</th>
+                                          <th className="p-2.5">Mobile Number</th>
                                           <th className="p-2.5">Roll Number</th>
                                           <th className="p-2.5">Branch</th>
                                           <th className="p-2.5">Year</th>
@@ -724,6 +729,9 @@ const AdminDashboard = () => {
                                             <td className="p-2.5 font-bold text-white">{m.name}</td>
                                             <td className="p-2.5 text-cyan-300 font-mono text-[11px]">
                                               {m.email || (m.isLeader ? t.leaderEmail : '-')}
+                                            </td>
+                                            <td className="p-2.5 text-emerald-400 font-mono text-[11px]">
+                                              {m.mobileNumber || (m.isLeader ? t.phone : '-')}
                                             </td>
                                             <td className="p-2.5 text-slate-200 font-mono font-bold">{m.rollNumber}</td>
                                             <td className="p-2.5 text-slate-300">{m.branch}</td>
@@ -798,6 +806,7 @@ const AdminDashboard = () => {
                       <th className="p-2">#</th>
                       <th className="p-2">Name</th>
                       <th className="p-2">Email</th>
+                      <th className="p-2">Mobile Number</th>
                       <th className="p-2">Roll No</th>
                       <th className="p-2">Year</th>
                       <th className="p-2">Branch</th>
@@ -811,6 +820,7 @@ const AdminDashboard = () => {
                         <td className="p-2 text-slate-500 font-bold">{idx + 1}</td>
                         <td className="p-2 font-bold text-white">{m.name} {m.isLeader && '(Leader)'}</td>
                         <td className="p-2 text-slate-300 font-mono text-[11px]">{m.email || (m.isLeader ? selectedTeam.leaderEmail : '-')}</td>
+                        <td className="p-2 text-emerald-400 font-mono text-[11px]">{m.mobileNumber || (m.isLeader ? selectedTeam.phone : '-')}</td>
                         <td className="p-2 text-cyan-300 font-mono">{m.rollNumber}</td>
                         <td className="p-2">{m.year}</td>
                         <td className="p-2">{m.branch}</td>

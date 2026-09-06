@@ -13,13 +13,14 @@ const COLUMNS = [
   { key: 'role', name: 'Role', letter: 'E', width: 'min-w-[100px]' },
   { key: 'studentName', name: 'Student Name', letter: 'F', width: 'min-w-[160px]' },
   { key: 'studentEmail', name: 'Member Email', letter: 'G', width: 'min-w-[180px]' },
-  { key: 'rollNumber', name: 'Roll Number', letter: 'H', width: 'min-w-[130px]' },
-  { key: 'year', name: 'Year', letter: 'I', width: 'min-w-[110px]' },
-  { key: 'branch', name: 'Branch', letter: 'J', width: 'min-w-[110px]' },
-  { key: 'gender', name: 'Gender', letter: 'K', width: 'min-w-[100px]' },
-  { key: 'casteCategory', name: 'Category', letter: 'L', width: 'min-w-[100px]' },
-  { key: 'registrationDate', name: 'Registration Date', letter: 'M', width: 'min-w-[160px]' },
-  { key: 'registrationStatus', name: 'Status', letter: 'N', width: 'min-w-[110px]' },
+  { key: 'mobileNumber', name: 'Mobile Number', letter: 'H', width: 'min-w-[140px]' },
+  { key: 'rollNumber', name: 'Roll Number', letter: 'I', width: 'min-w-[130px]' },
+  { key: 'year', name: 'Year', letter: 'J', width: 'min-w-[110px]' },
+  { key: 'branch', name: 'Branch', letter: 'K', width: 'min-w-[110px]' },
+  { key: 'gender', name: 'Gender', letter: 'L', width: 'min-w-[100px]' },
+  { key: 'casteCategory', name: 'Category', letter: 'M', width: 'min-w-[100px]' },
+  { key: 'registrationDate', name: 'Registration Date', letter: 'N', width: 'min-w-[160px]' },
+  { key: 'registrationStatus', name: 'Status', letter: 'O', width: 'min-w-[110px]' },
 ];
 
 const LiveSpreadsheet = () => {
@@ -123,6 +124,7 @@ const LiveSpreadsheet = () => {
       leaderEmail: '',
       studentName: '',
       studentEmail: '',
+      mobileNumber: '',
       rollNumber: '',
       year: '3rd Year',
       branch: 'CSE',
@@ -181,6 +183,7 @@ const LiveSpreadsheet = () => {
       (row.teamName && row.teamName.toLowerCase().includes(q)) ||
       (row.studentName && row.studentName.toLowerCase().includes(q)) ||
       (row.studentEmail && row.studentEmail.toLowerCase().includes(q)) ||
+      (row.mobileNumber && row.mobileNumber.toLowerCase().includes(q)) ||
       (row.rollNumber && row.rollNumber.toLowerCase().includes(q)) ||
       (row.problemStatementId && row.problemStatementId.toLowerCase().includes(q))
     );
@@ -420,6 +423,16 @@ const LiveSpreadsheet = () => {
                       value={row.studentEmail || ''}
                       onChange={(e) => handleCellChange(rowIdx, 'studentEmail', e.target.value)}
                       className="w-full bg-slate-950 border border-slate-700 rounded px-2 py-1.5 text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-slate-400 uppercase block">Mobile Number</label>
+                    <input
+                      type="tel"
+                      maxLength={10}
+                      value={row.mobileNumber || ''}
+                      onChange={(e) => handleCellChange(rowIdx, 'mobileNumber', e.target.value.replace(/\D/g, '').slice(0, 10))}
+                      className="w-full bg-slate-950 border border-slate-700 rounded px-2 py-1.5 text-emerald-400 font-mono"
                     />
                   </div>
                   <div>

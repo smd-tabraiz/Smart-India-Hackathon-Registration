@@ -18,13 +18,20 @@ const validateMembersArray = async (members, currentTeamId = null) => {
 
   // 1. Check all required fields
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const phoneClean = (val) => String(val || '').replace(/\D/g, '');
+
   for (let i = 0; i < members.length; i++) {
     const m = members[i];
-    if (!m.name || !m.email || !m.rollNumber || !m.year || !m.branch || !m.gender || !m.casteCategory) {
-      return `Incomplete details for member #${i + 1} (${m.name || 'Unnamed'}). All fields including Email ID are mandatory.`;
+    const mobile = m.mobileNumber || m.phone;
+    if (!m.name || !m.email || !mobile || !m.rollNumber || !m.year || !m.branch || !m.gender || !m.casteCategory) {
+      return `Incomplete details for member #${i + 1} (${m.name || 'Unnamed'}). All fields including Email ID and Mobile Number are mandatory.`;
     }
     if (!emailRegex.test(String(m.email).trim())) {
       return `Invalid email format for member #${i + 1} (${m.name || 'Unnamed'}): "${m.email}".`;
+    }
+    const cleanDigits = phoneClean(mobile);
+    if (cleanDigits.length < 10 || cleanDigits.length > 12) {
+      return `Invalid Mobile Number for member #${i + 1} (${m.name || 'Unnamed'}): "${mobile}". Please enter a valid 10-digit mobile number.`;
     }
   }
 
@@ -52,6 +59,13 @@ const validateMembersArray = async (members, currentTeamId = null) => {
   const uniqueEmails = new Set(memberEmails);
   if (uniqueEmails.size !== members.length) {
     return 'Duplicate email IDs found within the team. Each member must have a unique Email ID.';
+  }
+
+  // 6. Duplicate mobile numbers within current team
+  const memberPhones = members.map((m) => phoneClean(m.mobileNumber || m.phone));
+  const uniquePhones = new Set(memberPhones);
+  if (uniquePhones.size !== members.length) {
+    return 'Duplicate mobile numbers found within the team. Each member must have a distinct Mobile Number.';
   }
 
   // 5. Duplicate roll numbers across registered teams
@@ -148,16 +162,23 @@ const registerTeam = async (req, res) => {
       teamId = `SIH26-CC-${seqPadded}`;
     }
 
-    const formattedMembers = members.map((m) => ({
-      name: m.name.trim(),
-      email: (m.email || (m.isLeader ? formattedEmail : '')).trim().toLowerCase(),
-      rollNumber: m.rollNumber.trim().toUpperCase(),
-      year: m.year,
-      branch: m.branch,
-      gender: m.gender,
-      casteCategory: m.casteCategory,
-      isLeader: Boolean(m.isLeader),
-    }));
+    const formattedMembers = members.map((m) => {
+      const rawMobile = String(m.mobileNumber || m.phone || '').trim();
+      const cleanDigits = rawMobile.replace(/\D/g, '');
+      const finalMobile = cleanDigits.length === 12 && cleanDigits.startsWith('91') ? cleanDigits.slice(2) : cleanDigits;
+
+      return {
+        name: m.name.trim(),
+        email: (m.email || (m.isLeader ? formattedEmail : '')).trim().toLowerCase(),
+        mobileNumber: finalMobile || rawMobile,
+        rollNumber: m.rollNumber.trim().toUpperCase(),
+        year: m.year,
+        branch: m.branch,
+        gender: m.gender,
+        casteCategory: m.casteCategory,
+        isLeader: Boolean(m.isLeader),
+      };
+    });
 
     let userObj = null;
     let teamObj = null;

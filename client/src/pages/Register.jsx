@@ -15,6 +15,7 @@ const CATEGORIES = ['GEN', 'EWS', 'OC', 'BC', 'SC', 'ST'];
 const initialMemberState = (idx) => ({
   name: '',
   email: '',
+  mobileNumber: '',
   rollNumber: '',
   year: '3rd Year',
   branch: 'CSE',
@@ -88,11 +89,18 @@ const Register = () => {
   const validateStep2 = () => {
     setErrorMsg('');
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneClean = (val) => String(val || '').replace(/\D/g, '');
+
     for (let i = 0; i < 6; i++) {
       const m = members[i];
       if (!m.name.trim()) return `Member #${i + 1}: Name is required.`;
       if (!m.email || !m.email.trim()) return `Member #${i + 1}: Email ID is required.`;
       if (!emailRegex.test(m.email.trim())) return `Member #${i + 1}: Please enter a valid Email ID (e.g. student@gmail.com).`;
+      
+      const cleanDigits = phoneClean(m.mobileNumber);
+      if (!m.mobileNumber || !m.mobileNumber.trim()) return `Member #${i + 1}: Mobile Number is required.`;
+      if (cleanDigits.length !== 10) return `Member #${i + 1}: Please enter a valid 10-digit Mobile Number.`;
+
       if (!m.rollNumber.trim()) return `Member #${i + 1}: Roll Number is required.`;
       if (!m.year) return `Member #${i + 1}: Year is required.`;
       if (!m.branch) return `Member #${i + 1}: Branch is required.`;
@@ -121,6 +129,13 @@ const Register = () => {
     const uniqueEmails = new Set(emails);
     if (uniqueEmails.size !== 6) {
       return 'Duplicate Email IDs found inside team. Each student must have a unique Email ID.';
+    }
+
+    // Check duplicate mobile numbers within team
+    const phones = members.map((m) => phoneClean(m.mobileNumber));
+    const uniquePhones = new Set(phones);
+    if (uniquePhones.size !== 6) {
+      return 'Duplicate Mobile Numbers found inside team. Each student must have a unique Mobile Number.';
     }
 
     return null;
@@ -377,7 +392,7 @@ const Register = () => {
                     </label>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                     <div>
                       <label className="block text-[11px] font-semibold text-slate-400 uppercase mb-1">Full Name *</label>
                       <input
@@ -399,6 +414,19 @@ const Register = () => {
                         value={m.email}
                         onChange={(e) => handleMemberChange(idx, 'email', e.target.value)}
                         className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-semibold text-slate-400 uppercase mb-1">Mobile Number *</label>
+                      <input
+                        type="tel"
+                        required
+                        maxLength={10}
+                        placeholder="9876543210"
+                        value={m.mobileNumber || ''}
+                        onChange={(e) => handleMemberChange(idx, 'mobileNumber', e.target.value.replace(/\D/g, '').slice(0, 10))}
+                        className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 font-mono"
                       />
                     </div>
 
@@ -532,6 +560,7 @@ const Register = () => {
                     <th className="p-3">#</th>
                     <th className="p-3">Name</th>
                     <th className="p-3">Email ID</th>
+                    <th className="p-3">Mobile No</th>
                     <th className="p-3">Roll No</th>
                     <th className="p-3">Year</th>
                     <th className="p-3">Branch</th>
@@ -546,7 +575,8 @@ const Register = () => {
                       <td className="p-3 text-slate-500 font-bold">{idx + 1}</td>
                       <td className="p-3 font-semibold text-white">{m.name}</td>
                       <td className="p-3 text-slate-300 font-mono text-[11px]">{m.email}</td>
-                      <td className="p-3 text-cyan-300 font-mono">{m.rollNumber}</td>
+                      <td className="p-3 text-cyan-300 font-mono text-[11px]">{m.mobileNumber}</td>
+                      <td className="p-3 text-slate-200 font-mono">{m.rollNumber}</td>
                       <td className="p-3 text-slate-300">{m.year}</td>
                       <td className="p-3 text-slate-300">{m.branch}</td>
                       <td className="p-3">
